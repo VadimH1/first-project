@@ -7,20 +7,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 from flask import g, request, redirect, url_for
 
-app = Flask(__name__, template_folder='templates')
-app.config.from_mapping(
-    SECRET_KEY='dev',
-    DATABASE=os.path.join(app.instance_path, 'hello.sqlite'),
-)
-
-try:
-    os.makedirs(app.instance_path)
-except OSError:
-    pass
-
-from . import db
-db.init_app(app)
-
 
 SECRET = "frefrfrefrenfnrenfffdnvfvibrerberfn"
 from .db import get_db
@@ -149,7 +135,4 @@ def api_for_who_i_am(user_id):
         "i_am": f"{user['first_name']} {user['second_name']}"
     }, 200
 
-@app.route("/hello")
-# @is_authenticated
-def hello():
-    return "Hello Andy"
+
