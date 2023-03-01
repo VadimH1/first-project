@@ -2,10 +2,13 @@
 import os
 import json
 import jwt
-from flask import Flask, request, render_template, flash
+from flask import Flask, request, render_template, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 from flask import g, request, redirect, url_for
+from models import Post, User
+from flask import app
+from . import db
 
 
 SECRET = "frefrfrefrenfnrenfffdnvfvibrerberfn"
@@ -66,12 +69,6 @@ def login_required(f):
             return {"error": "Користувач не авторизований"}, 403
         
         user = User.qurey.filter(User.id == token_user_id).one()
-        
-       #db = get_db()
-      # user = db.execute(
-     #      "SELECT * FROM user WHERE id = ?",
-     #      (token_user_id,),
-     #  ).fetchone()
 
         if not user:
             return {"error": f"Користувач не існує  {user_id}"}, 404
@@ -95,12 +92,6 @@ def login_api():
         
     user = User.query.filter(User.id == income_phone_number).one()
     
-   #db = get_db()
-   #user = db.execute(
-   #    "SELECT * FROM user WHERE phone_number = ?",
-   #    (income_phone_number,),
-   #).fetchone()
-    # Перевірка, чи користувач існує
     if not user:
         return {"error": f"Користувач не існує з телефоном {income_phone_number}"}, 404
 
@@ -133,34 +124,34 @@ def create_post(user_id):
     posts = Post.query.all()
     posts = []
     for post in posts:
-	posts.append({
-	"id": post["id"],
-	"title": post["title"],
-	"body": post["body"],
-	"created": post["created"],	
+        posts.append({
+        "id": post["id"],
+        "title": post["title"],
+        "body": post["body"],
+        "created": post["created"],	
 	})    
     return json(posts)
     
 
-@app.route('/api/v1/edit-posts/<user_id>', methods=['GET'], ['POST'])
+@app.route('/api/v1/edit-posts/<user_id>', methods=['GET'])
 def post_edit(user_id):
+    data = request.json
     post = Post.query.get(user_id)
     if request.method == "POST":
-        post.title = request.form['title']
-        post.body = request.form['body']
-        post.created = request.form['created']
+        post.title = data['title']
+        post.body = data['body']
+        post.created = data['created']
         db.session.commit()
       #return redirect('/user-posts')
             		        
     return "Post edited", 200	
     
     
-@app.route('/api/v1/deleted-posts/<user_id>, methods=['GET'], ['POST'])
- def delete_posts(user_id):
-    post = Post.query.get(user_id)
+@app.route('/api/v1/delete-posts/<user_id>', methods=['GET'])
+def delete_posts(post_id):
+    post = Post.query.filter_by(id=post_id, user_id=User.id).first()
     db.session.delete(post)
     db.session.commit()
-    flash(f'{post['title']} Видалений')'
         
     return redirect('/user-posts')
     

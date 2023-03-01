@@ -1,5 +1,6 @@
-from sqalchemy import Column, Integer, String, Text, DateTime, ForeignKeyConstraint
-from first_app.db import Base
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKeyConstraint
+from db import Base
+from datetime import datetime
 
 
 class User(Base):
@@ -13,7 +14,7 @@ class User(Base):
 	def __init__(
 		self, phone_number=None, 
 		first_name=None, second_name=None, 
-		passwor=None
+		password=None
 	):
 		self.phone_number = phone_number
 		self.first_name = first_name
@@ -31,16 +32,17 @@ class User(Base):
 class Post(Base):
 	__tablename__ = 'post'
 	id = Column(Integer, primary_key=True)
-	#author_id = Column(Integer, nullable=False)
+	author_id = Column(Integer, nullable=False)
 	title = Column(String(100), nullable=False)
 	body = Column(String(100), nullable=False)
-	created =Column(TimeStamp(), .....)
+	created =Column(DateTime, nullable=False, default=datetime.utcnow())
 	
 	__table_args__ = (
 		ForeignKeyConstraint(["author_id"], ["user.id"])
 	)	
 	
-	def __init__(self, title=None, body=None, created =None):
+	def __init__(self, author_id=None, title=None, body=None, created =None):
+		self.author_id = author_id
 		self.title = title
 		self.body = body
 		self.created = created
