@@ -7,8 +7,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 from flask import g, request, redirect, url_for
 from models import Post, User
-from flask import app
-from . import db
+from . import app
+from .db import get_db
 
 
 SECRET = "frefrfrefrenfnrenfffdnvfvibrerberfn"
@@ -43,12 +43,6 @@ def register_user_api():
     db.session.add(user)
     db.session.commit()
 
-   #db = get_db()
-   #db.execute(
-     #  "INSERT INTO user (phone_number, first_name, second_name, password) VALUES (?, ?, ?, ?)",
-     #  (phone_number, first_name, second_name, generate_password_hash(password)),
-   #)
-   #db.commit()
     return {}, 200
 
 
@@ -65,7 +59,7 @@ def login_required(f):
         # 1) Взяти токен з headers Authorization.
         # 2) Валідувати токен за допомогою бібліотек.
         # 3) Дістати user_id з payload і зробити перевірки.
-        if not token_user_id or user_id != token_user_id:
+        if not token_user_id:
             return {"error": "Користувач не авторизований"}, 403
         
         user = User.qurey.filter(User.id == token_user_id).one()
@@ -118,7 +112,7 @@ def user_info_api(user_id):
     }, 200
     
     
-@app.route('/api/v1/user-posts/<user_id>', methods=['GET'])
+@app.route('/api/v1/user-posts/<user_id>', methods=['POST'])
 @login_required
 def create_post(user_id):
     posts = Post.query.all()
@@ -156,12 +150,19 @@ def delete_posts(post_id):
     return redirect('/user-posts')
     
 
-@app.route("/api/v1/who-i-am/<user_id>", methods=['GET'])
+@app.route("/api/v1/who-i-am/<int:user_id>", methods=['GET'])
 @login_required
 def api_for_who_i_am(user_id):
-    user = User.query.filter(User.id == user_id).one()
-    return {
-        "i_am": f"{user['first_name']} {user['second_name']}"
-    }, 200
+    if user_id != g.user_id:
+        return {"error": "Requested data is not yours"}
 
+
+# Виведення постів по користувачу
+@app.route('/posts')
+def posts_user(user_id):
+    post_user = User.get(User, 1)
+    return (f'')
+
+# https://docs.sqlalchemy.org/en/14/orm/query.html#sqlalchemy.orm.Query -> вивчити
+    user = User.query.filter(User.id == user_id).one()
 
