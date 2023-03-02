@@ -7,12 +7,11 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 from flask import g, request, redirect, url_for
 from models import Post, User
-from . import app
+from . import create_app
+from .db import get_db, db_session
 from . import db
 
-
-SECRET = "frefrfrefrenfnrenfffdnvfvibrerberfn"
-from .db import get_db
+app = create_app()
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
@@ -51,14 +50,13 @@ def login_required(f):
     def _wrapper(*args, **kwargs):
 
         user_id = int(kwargs.get("user_id"))
-        # JSON WEB TOKEN 
+            # JSON WEB TOKEN 
         access_token = request.headers.get("Authorization")
-        payload = jwt.decode(access_token, SECRET, algorithms=["HS256"])
+        payload = jwt.decode(access_token, app.config['SECRET_KEY'], algorithms=["HS256"])
         token_user_id = payload["user_id"]
-
-        # 1) Взяти токен з headers Authorization.
-        # 2) Валідувати токен за допомогою бібліотек.
-        # 3) Дістати user_id з payload і зробити перевірки.
+            # 1) Взяти токен з headers Authorization.
+            # 2) Валідувати токен за допомогою бібліотек.
+            # 3) Дістати user_id з payload і зробити перевірки.
         if not token_user_id:
             return {"error": "Користувач не авторизований"}, 403
         
@@ -94,7 +92,7 @@ def login_api():
 
     # user_id має знаходитись в середині JWT.
     token_data = {"user_id": user["id"]}
-    access_token = jwt.encode(token_data, SECRET, algorithm='HS256')
+    access_token = jwt.encode(token_data, app.config['SECRET_KEY'], algorithm='HS256')
     return {"access_token": access_token}, 200
 
 
@@ -127,7 +125,7 @@ def create_post(user_id):
     return json(posts)
     
 
-@app.route('/api/v1/edit-posts/<user_id>', methods=['GET'])
+@app.route('/api/v1/edit-posts/<user_id>', methods=['GET','POST'])
 def post_edit(user_id):
     data = request.json
     post = Post.query.get(user_id)
@@ -136,12 +134,11 @@ def post_edit(user_id):
         post.body = data['body']
         post.created = data['created']
         db.session.commit()
-      #return redirect('/user-posts')
             		        
     return "Post edited", 200	
     
     
-@app.route('/api/v1/delete-posts/<user_id>', methods=['POST'])
+@app.route('/api/v1/delete-post/<user_id>', methods=['GET','POST'])
 def delete_posts(post_id):
     post = Post.query.filter_by(id=post_id, user_id=User.id).first()
     db.session.delete(post)
