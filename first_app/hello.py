@@ -8,7 +8,7 @@ from functools import wraps
 from flask import g, request, redirect, url_for
 from models import Post, User
 from . import app
-from .db import get_db
+from . import db
 
 
 SECRET = "frefrfrefrenfnrenfffdnvfvibrerberfn"
@@ -141,13 +141,13 @@ def post_edit(user_id):
     return "Post edited", 200	
     
     
-@app.route('/api/v1/delete-posts/<user_id>', methods=['GET'])
+@app.route('/api/v1/delete-posts/<user_id>', methods=['POST'])
 def delete_posts(post_id):
     post = Post.query.filter_by(id=post_id, user_id=User.id).first()
     db.session.delete(post)
     db.session.commit()
         
-    return redirect('/user-posts')
+    return "Post deleted", 200
     
 
 @app.route("/api/v1/who-i-am/<int:user_id>", methods=['GET'])
@@ -156,12 +156,12 @@ def api_for_who_i_am(user_id):
     if user_id != g.user_id:
         return {"error": "Requested data is not yours"}
 
-
-# Виведення постів по користувачу
-@app.route('/posts')
-def posts_user(user_id):
-    post_user = User.get(User, 1)
-    return (f'')
+ 
+@app.route('/api/v1/<user_id>/posts/<post_id>', methods=['GET'])
+def get_user_posts(post_id):
+    """Виведення постів по користувачу. Виводимо пост користувача"""
+    post = Post.query.get(post_id)
+    return "Отримали пост користувача", 200
 
 # https://docs.sqlalchemy.org/en/14/orm/query.html#sqlalchemy.orm.Query -> вивчити
     user = User.query.filter(User.id == user_id).one()
