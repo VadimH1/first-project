@@ -11,6 +11,7 @@ class User(Base):
 	second_name = Column(Text(), unique=False)
 	password = Column(Text(), unique=False)
 	
+	
 	def __init__(
 		self, phone_number=None, 
 		first_name=None, second_name=None, 
@@ -24,7 +25,8 @@ class User(Base):
 		
 	def __repr__(self):
 		return f'<User {self.phone_number}>'
-		
+
+
 	def full_name(self):
 		return f'{self.first_name} {self.second_name}'
 		
@@ -37,16 +39,14 @@ class Post(Base):
 	body = Column(String(100), nullable=False)
 	created =Column(DateTime, nullable=False, default=datetime.utcnow())
 	
-	# __table_args__ = (
-	# 	ForeignKeyConstraint(["author_id"], ["user.id"])
-	# )	
-	
+
 	def __init__(self, author_id=None, title=None, body=None, created =None):
 		self.author_id = author_id
 		self.title = title
 		self.body = body
 		self.created = created
-		
+
+
 	def __repr__(self):
 		return f'Post("{self.title}", "{self.body}", "{self.created}")'			
 		

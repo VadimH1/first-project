@@ -5,10 +5,18 @@ import jwt
 from flask import Flask, Blueprint, request, render_template, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
+<<<<<<< HEAD
 from flask import g, request, redirect, url_for
 from .models import Post, User
 from .db import get_db, db_session
 from . import db
+=======
+from flask import g, request, redirect, url_for, Blueprint
+from models import Post, User
+from db import get_db, db_session
+from . import db, app
+
+>>>>>>> 20d724a (After fixed conflicts)
 
 hello_urls = Blueprint("sync", __name__)
 
@@ -29,7 +37,15 @@ def index():
         return render_template("index.html", income_form_data=_data)
 
 # Add comment to the api
+<<<<<<< HEAD
 @hello_urls.route("/api/v1/register-user", methods=['POST'])
+=======
+# <<<<<<< HEAD
+@app.route("/api/v1/register-user", methods=['GET','POST'])
+# =======
+@hello_urls.route("/api/v1/register-user", methods=['POST'])
+# >>>>>>> 5801257e45f5140cf60060d209571b20f6a09351
+>>>>>>> 20d724a (After fixed conflicts)
 def register_user_api():
     data = request.json
     phone_number = data["phone_number"]

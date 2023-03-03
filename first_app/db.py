@@ -15,6 +15,7 @@ db_session = scoped_session(sessionmaker(autocommit=False,
 Base = declarative_base()
 Base.query = db_session.query_property()
 
+
 def get_db():
     """
         Створюємо з'єднання з базою данних
@@ -38,22 +39,21 @@ def close_db(e=None):
     if db is not None:
         db.close()
 
+
 def init_db():
     """
        Створює таблиці в базі данних
     """
     import models
     Base.metadata.create_all(bind=engine)
-    # db = get_db()
-
-    # with current_app.open_resource('schema.sql') as f:
-    #     db.executescript(f.read().decode('utf8'))
+    
 
 @click.command('init-db')
 def init_db_command():
     """Clear the existing data and create new tables."""
     init_db()
     click.echo('Initialized the database.')
+
 
 def init_app(app):
     app.teardown_appcontext(close_db)
