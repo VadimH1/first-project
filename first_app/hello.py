@@ -6,15 +6,21 @@ from flask import Flask, Blueprint, request, render_template, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> c3ce9c5 (check)
 from flask import g, request, redirect, url_for
 from .models import Post, User
 from .db import get_db, db_session
 from . import db
+<<<<<<< HEAD
 =======
 from flask import g, request, redirect, url_for, Blueprint
 from models import Post, User
 from db import get_db, db_session
 from . import db, app
+=======
+>>>>>>> c3ce9c5 (check)
 
 >>>>>>> 20d724a (After fixed conflicts)
 
@@ -41,7 +47,7 @@ def index():
 @hello_urls.route("/api/v1/register-user", methods=['POST'])
 =======
 # <<<<<<< HEAD
-@app.route("/api/v1/register-user", methods=['GET','POST'])
+# @app.route("/api/v1/register-user", methods=['GET','POST'])
 # =======
 @hello_urls.route("/api/v1/register-user", methods=['POST'])
 # >>>>>>> 5801257e45f5140cf60060d209571b20f6a09351
