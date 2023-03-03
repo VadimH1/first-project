@@ -2,11 +2,11 @@
 import os
 import json
 import jwt
-from flask import Flask, request, render_template, flash, session
+from flask import Flask, Blueprint, request, render_template, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 from flask import g, request, redirect, url_for
-from models import Post, User
+from .models import Post, User
 from .db import get_db, db_session
 from . import db
 
