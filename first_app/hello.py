@@ -7,13 +7,12 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 from flask import g, request, redirect, url_for
 from models import Post, User
-from . import create_app
 from .db import get_db, db_session
 from . import db
 
-app = create_app()
+hello_urls = Blueprint("sync", __name__)
 
-@app.route("/", methods=['GET', 'POST'])
+@hello_urls.route("/", methods=['GET', 'POST'])
 def index():
     if request.method == "GET":
         print("Ми викликали GET")
@@ -30,7 +29,7 @@ def index():
         return render_template("index.html", income_form_data=_data)
 
 # Add comment to the api
-@app.route("/api/v1/register-user", methods=['POST'])
+@hello_urls.route("/api/v1/register-user", methods=['POST'])
 def register_user_api():
     data = request.json
     phone_number = data["phone_number"]
@@ -71,7 +70,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return _wrapper
 
-@app.route("/api/v1/login", methods=['POST'])
+@hello_urls.route("/api/v1/login", methods=['POST'])
 def login_api():
     data = request.json # Analog
 
@@ -96,7 +95,7 @@ def login_api():
     return {"access_token": access_token}, 200
 
 
-@app.route("/api/v1/user-info/<user_id>", methods=['GET'])
+@hello_urls.route("/api/v1/user-info/<user_id>", methods=['GET'])
 # @is_authenticated https://pythonworld.ru/osnovy/dekoratory.html
 # Треба створити декоратор, який буде дозволяти доступ до апі тільки залогіненим користувачам.
 @login_required
@@ -110,7 +109,7 @@ def user_info_api(user_id):
     }, 200
     
     
-@app.route('/api/v1/user-posts/<user_id>', methods=['POST'])
+@hello_urls.route('/api/v1/user-posts/<user_id>', methods=['POST'])
 @login_required
 def create_post(user_id):
     posts = Post.query.all()
@@ -125,7 +124,7 @@ def create_post(user_id):
     return json(posts)
     
 
-@app.route('/api/v1/edit-posts/<user_id>', methods=['GET','POST'])
+@hello_urls.route('/api/v1/edit-posts/<user_id>', methods=['GET','POST'])
 def post_edit(user_id):
     data = request.json
     post = Post.query.get(user_id)
@@ -138,7 +137,7 @@ def post_edit(user_id):
     return "Post edited", 200	
     
     
-@app.route('/api/v1/delete-post/<user_id>', methods=['GET','POST'])
+@hello_urls.route('/api/v1/delete-post/<user_id>', methods=['GET','POST'])
 def delete_posts(post_id):
     post = Post.query.filter_by(id=post_id, user_id=User.id).first()
     db.session.delete(post)
@@ -147,14 +146,14 @@ def delete_posts(post_id):
     return "Post deleted", 200
     
 
-@app.route("/api/v1/who-i-am/<int:user_id>", methods=['GET'])
+@hello_urls.route("/api/v1/who-i-am/<int:user_id>", methods=['GET'])
 @login_required
 def api_for_who_i_am(user_id):
     if user_id != g.user_id:
         return {"error": "Requested data is not yours"}
 
  
-@app.route('/api/v1/<user_id>/posts/<post_id>', methods=['GET'])
+@hello_urls.route('/api/v1/<user_id>/posts/<post_id>', methods=['GET'])
 def get_user_posts(post_id):
     """Виведення постів по користувачу. Виводимо пост користувача"""
     post = Post.query.get(post_id)

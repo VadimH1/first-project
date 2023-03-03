@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 
+from .hello import hello_urls
 
 def create_app(test_config=None):
     app = Flask(__name__, template_folder='templates', instance_relative_config=True)
@@ -22,7 +23,8 @@ def create_app(test_config=None):
 
     from . import db
     db.init_app(app)
-
+    app.register_blueprint(hello_urls)
     return app
 
-    
+if __name__ == '__main__':
+    create_app().run(debug=True)
