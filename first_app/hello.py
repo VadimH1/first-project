@@ -5,24 +5,12 @@ import jwt
 from flask import Flask, Blueprint, request, render_template, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> c3ce9c5 (check)
-from flask import g, request, redirect, url_for
+from flask import g, redirect, url_for
 from .models import Post, User
 from .db import get_db, db_session
 from . import db
-<<<<<<< HEAD
-=======
-from flask import g, request, redirect, url_for, Blueprint
-from models import Post, User
-from db import get_db, db_session
-from . import db, app
-=======
->>>>>>> c3ce9c5 (check)
 
->>>>>>> 20d724a (After fixed conflicts)
+# app = create_app()
 
 hello_urls = Blueprint("sync", __name__)
 
@@ -43,27 +31,27 @@ def index():
         return render_template("index.html", income_form_data=_data)
 
 # Add comment to the api
-<<<<<<< HEAD
 @hello_urls.route("/api/v1/register-user", methods=['POST'])
-=======
-# <<<<<<< HEAD
-# @app.route("/api/v1/register-user", methods=['GET','POST'])
-# =======
-@hello_urls.route("/api/v1/register-user", methods=['POST'])
-# >>>>>>> 5801257e45f5140cf60060d209571b20f6a09351
->>>>>>> 20d724a (After fixed conflicts)
 def register_user_api():
     data = request.json
     phone_number = data["phone_number"]
     first_name = data["first_name"]
     second_name = data["second_name"]
     password = data["password"]
-    
-    user = User('phone_number', 'first_name', 'second_name', 'password')
-    db.session.add(user)
-    db.session.commit()
 
+    _db = db.get_db()
+    _db.execute(
+        "INSERT INTO user (phone_number, first_name, second_name, password) VALUES (?, ?, ?, ?)",
+        (phone_number, first_name, second_name, generate_password_hash(password)),
+    )
+    _db.commit()
     return {}, 200
+    
+    # user = User('phone_number', 'first_name', 'second_name', 'password')
+    # db.session.add(user)
+    # db.session.commit()
+
+    # return {}, 200
 
 
 def login_required(f):
@@ -113,7 +101,7 @@ def login_api():
 
     # user_id має знаходитись в середині JWT.
     token_data = {"user_id": user["id"]}
-    access_token = jwt.encode(token_data, app.config['SECRET_KEY'], algorithm='HS256')
+    access_token = jwt.encode(token_data, app.config['SECRET_KEY'], algorithm='HS256') 
     return {"access_token": access_token}, 200
 
 
@@ -122,7 +110,12 @@ def login_api():
 # Треба створити декоратор, який буде дозволяти доступ до апі тільки залогіненим користувачам.
 @login_required
 def user_info_api(user_id):
-    user = User.query.filter(User.id == user_id).one()
+    db = get_db()
+    user = db.execute(
+        "SELECT * FROM user WHERE id = ?",
+        (user_id,),
+    ).fetchone()
+    # user = User.query.filter(User.id == user_id).one()
     return {
         "id": user["id"],
         "phone_number": user["phone_number"],
