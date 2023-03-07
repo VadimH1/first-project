@@ -38,20 +38,12 @@ def register_user_api():
     first_name = data["first_name"]
     second_name = data["second_name"]
     password = data["password"]
-
-    _db = db.get_db()
-    _db.execute(
-        "INSERT INTO user (phone_number, first_name, second_name, password) VALUES (?, ?, ?, ?)",
-        (phone_number, first_name, second_name, generate_password_hash(password)),
-    )
-    _db.commit()
-    return {}, 200
     
-    # user = User('phone_number', 'first_name', 'second_name', 'password')
-    # db.session.add(user)
-    # db.session.commit()
+    user = User('phone_number', 'first_name', 'second_name', 'password')
+    db.session.add(user)
+    db.session.commit()
 
-    # return {}, 200
+    return {}, 200
 
 
 def login_required(f):
@@ -106,16 +98,9 @@ def login_api():
 
 
 @hello_urls.route("/api/v1/user-info/<user_id>", methods=['GET'])
-# @is_authenticated https://pythonworld.ru/osnovy/dekoratory.html
-# Треба створити декоратор, який буде дозволяти доступ до апі тільки залогіненим користувачам.
 @login_required
 def user_info_api(user_id):
-    db = get_db()
-    user = db.execute(
-        "SELECT * FROM user WHERE id = ?",
-        (user_id,),
-    ).fetchone()
-    # user = User.query.filter(User.id == user_id).one()
+    user = User.query.filter(User.id == user_id).one()
     return {
         "id": user["id"],
         "phone_number": user["phone_number"],
@@ -124,42 +109,49 @@ def user_info_api(user_id):
     }, 200
     
     
-@hello_urls.route('/api/v1/user-posts/<user_id>', methods=['POST'])
+@hello_urls.route('/api/v1/create-post/<user_id>', methods=['POST'])
 @login_required
 def create_post(user_id):
-    posts = Post.query.all()
-    posts = []
-    for post in posts:
-        posts.append({
-        "id": post["id"],
-        "title": post["title"],
-        "body": post["body"],
-        "created": post["created"],	
-	})    
-    return json(posts)
-    
-
-@hello_urls.route('/api/v1/edit-posts/<user_id>', methods=['GET','POST'])
-def post_edit(user_id):
+    """Створення постів"""
     data = request.json
+    title = data['title']
+    body = data['body']
+    created = data['create']	
+    author_id = None
+
+    post = Post(title, body, created, author_id)
+    db.session.add(post)
+    db.session.commit()
+
+    return "Create", 200
+    
+    
+@hello_urls.route('/api/v1/delete-post/<user_id>', methods=['DELETE'])
+@login_required
+def delete_post(user_id):
+    """Видалення постів"""
     post = Post.query.get(user_id)
-    if request.method == "POST":
-        post.title = data['title']
-        post.body = data['body']
-        post.created = data['created']
-        db.session.commit()
-            		        
-    return "Post edited", 200	
-    
-    
-@hello_urls.route('/api/v1/delete-post/<user_id>', methods=['GET','POST'])
-def delete_posts(post_id):
-    post = Post.query.filter_by(id=post_id, user_id=User.id).first()
     db.session.delete(post)
     db.session.commit()
         
-    return "Post deleted", 200
-    
+    return "Deleted", 200
+
+
+@hello_urls.route('/api/v1/update-post/<user_id', methods=['PUT'])
+@login_required
+def update_post(user_id):
+    """Редагування постів"""
+    data = request.json
+    title = data['title']
+    body = data['body']
+    created = data['create']	
+    author_id = None
+
+    post = Post.query.get(user_id)
+    db.session.commit()
+
+    return "Updated", 200
+
 
 @hello_urls.route("/api/v1/who-i-am/<int:user_id>", methods=['GET'])
 @login_required
@@ -168,12 +160,17 @@ def api_for_who_i_am(user_id):
         return {"error": "Requested data is not yours"}
 
  
-@hello_urls.route('/api/v1/<user_id>/posts/<post_id>', methods=['GET'])
-def get_user_posts(post_id):
-    """Виведення постів по користувачу. Виводимо пост користувача"""
+@hello_urls.route('/api/v1/<user_id>/posts/', methods=['GET'])
+@login_required
+def get_user_post(user_id):
+    """Список постів юзера"""
+    post = Post.query.all(user_id)
+    return "Отримали пости юзера", 200
+
+
+@hello_urls.route('/api/v1/<user_id>/post/<post_id>', methods=['GET'])
+@login_required
+def user_post(post_id):
+    """Виводимо пост користувача"""
     post = Post.query.get(post_id)
-    return "Отримали пост користувача", 200
-
-# https://docs.sqlalchemy.org/en/14/orm/query.html#sqlalchemy.orm.Query -> вивчити
-    user = User.query.filter(User.id == user_id).one()
-
+    return "Пост користувача", 200
