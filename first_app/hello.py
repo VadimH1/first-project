@@ -2,30 +2,17 @@
 import os
 import json
 import jwt
-from flask import Flask, request, render_template
+from flask import Flask, Blueprint, request, render_template, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 from flask import g, request, redirect, url_for
-
-app = Flask(__name__, template_folder='templates')
-app.config.from_mapping(
-    SECRET_KEY='dev',
-    DATABASE=os.path.join(app.instance_path, 'hello.sqlite'),
-)
-
-try:
-    os.makedirs(app.instance_path)
-except OSError:
-    pass
-
+from .models import Post, User
+from .db import get_db, db_session
 from . import db
-db.init_app(app)
 
+hello_urls = Blueprint("sync", __name__)
 
-SECRET = "frefrfrefrenfnrenfffdnvfvibrerberfn"
-from .db import get_db
-
-@app.route("/", methods=['GET', 'POST'])
+@hello_urls.route("/", methods=['GET', 'POST'])
 def index():
     if request.method == "GET":
         print("Ми викликали GET")
@@ -42,20 +29,18 @@ def index():
         return render_template("index.html", income_form_data=_data)
 
 # Add comment to the api
-@app.route("/api/v1/register-user", methods=['POST'])
+@hello_urls.route("/api/v1/register-user", methods=['POST'])
 def register_user_api():
     data = request.json
     phone_number = data["phone_number"]
     first_name = data["first_name"]
     second_name = data["second_name"]
     password = data["password"]
+    
+    user = User('phone_number', 'first_name', 'second_name', 'password')
+    db.session.add(user)
+    db.session.commit()
 
-    db = get_db()
-    db.execute(
-        "INSERT INTO user (phone_number, first_name, second_name, password) VALUES (?, ?, ?, ?)",
-        (phone_number, first_name, second_name, generate_password_hash(password)),
-    )
-    db.commit()
     return {}, 200
 
 
@@ -64,21 +49,17 @@ def login_required(f):
     def _wrapper(*args, **kwargs):
 
         user_id = int(kwargs.get("user_id"))
-        # JSON WEB TOKEN 
+            # JSON WEB TOKEN 
         access_token = request.headers.get("Authorization")
-        payload = jwt.decode(access_token, SECRET, algorithms=["HS256"])
+        payload = jwt.decode(access_token, app.config['SECRET_KEY'], algorithms=["HS256"])
         token_user_id = payload["user_id"]
-
-        # 1) Взяти токен з headers Authorization.
-        # 2) Валідувати токен за допомогою бібліотек.
-        # 3) Дістати user_id з payload і зробити перевірки.
-        if not token_user_id or user_id != token_user_id:
+            # 1) Взяти токен з headers Authorization.
+            # 2) Валідувати токен за допомогою бібліотек.
+            # 3) Дістати user_id з payload і зробити перевірки.
+        if not token_user_id:
             return {"error": "Користувач не авторизований"}, 403
-        db = get_db()
-        user = db.execute(
-            "SELECT * FROM user WHERE id = ?",
-            (token_user_id,),
-        ).fetchone()
+        
+        user = User.qurey.filter(User.id == token_user_id).one()
 
         if not user:
             return {"error": f"Користувач не існує  {user_id}"}, 404
@@ -89,7 +70,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return _wrapper
 
-@app.route("/api/v1/login", methods=['POST'])
+@hello_urls.route("/api/v1/login", methods=['POST'])
 def login_api():
     data = request.json # Analog
 
@@ -99,13 +80,9 @@ def login_api():
 
     if not income_phone_number or not income_password:
         return "", 401
-
-    db = get_db()
-    user = db.execute(
-        "SELECT * FROM user WHERE phone_number = ?",
-        (income_phone_number,),
-    ).fetchone()
-    # Перевірка, чи користувач існує
+        
+    user = User.query.filter(User.id == income_phone_number).one()
+    
     if not user:
         return {"error": f"Користувач не існує з телефоном {income_phone_number}"}, 404
 
@@ -114,42 +91,74 @@ def login_api():
 
     # user_id має знаходитись в середині JWT.
     token_data = {"user_id": user["id"]}
-    access_token = jwt.encode(token_data, SECRET, algorithm='HS256')
+    access_token = jwt.encode(token_data, app.config['SECRET_KEY'], algorithm='HS256')
     return {"access_token": access_token}, 200
 
-# J
 
-@app.route("/api/v1/user-info/<user_id>", methods=['GET'])
+@hello_urls.route("/api/v1/user-info/<user_id>", methods=['GET'])
 # @is_authenticated https://pythonworld.ru/osnovy/dekoratory.html
 # Треба створити декоратор, який буде дозволяти доступ до апі тільки залогіненим користувачам.
 @login_required
 def user_info_api(user_id):
-    db = get_db()
-    user = db.execute(
-        "SELECT * FROM user WHERE id = ?",
-        (user_id,),
-    ).fetchone()
+    user = User.query.filter(User.id == user_id).one()
     return {
         "id": user["id"],
         "phone_number": user["phone_number"],
         "first_name": user["first_name"],
         "second_name": user["second_name"],
     }, 200
+    
+    
+@hello_urls.route('/api/v1/user-posts/<user_id>', methods=['POST'])
+@login_required
+def create_post(user_id):
+    posts = Post.query.all()
+    posts = []
+    for post in posts:
+        posts.append({
+        "id": post["id"],
+        "title": post["title"],
+        "body": post["body"],
+        "created": post["created"],	
+	})    
+    return json(posts)
+    
 
+@hello_urls.route('/api/v1/edit-posts/<user_id>', methods=['GET','POST'])
+def post_edit(user_id):
+    data = request.json
+    post = Post.query.get(user_id)
+    if request.method == "POST":
+        post.title = data['title']
+        post.body = data['body']
+        post.created = data['created']
+        db.session.commit()
+            		        
+    return "Post edited", 200	
+    
+    
+@hello_urls.route('/api/v1/delete-post/<user_id>', methods=['GET','POST'])
+def delete_posts(post_id):
+    post = Post.query.filter_by(id=post_id, user_id=User.id).first()
+    db.session.delete(post)
+    db.session.commit()
+        
+    return "Post deleted", 200
+    
 
-@app.route("/api/v1/who-i-am/<user_id>", methods=['GET'])
+@hello_urls.route("/api/v1/who-i-am/<int:user_id>", methods=['GET'])
 @login_required
 def api_for_who_i_am(user_id):
-    db = get_db()
-    user = db.execute(
-        "SELECT * FROM user WHERE id = ?",
-        (user_id,),
-    ).fetchone()
-    return {
-        "i_am": f"{user['first_name']} {user['second_name']}"
-    }, 200
+    if user_id != g.user_id:
+        return {"error": "Requested data is not yours"}
 
-@app.route("/hello")
-# @is_authenticated
-def hello():
-    return "Hello Andy"
+ 
+@hello_urls.route('/api/v1/<user_id>/posts/<post_id>', methods=['GET'])
+def get_user_posts(post_id):
+    """Виведення постів по користувачу. Виводимо пост користувача"""
+    post = Post.query.get(post_id)
+    return "Отримали пост користувача", 200
+
+# https://docs.sqlalchemy.org/en/14/orm/query.html#sqlalchemy.orm.Query -> вивчити
+    user = User.query.filter(User.id == user_id).one()
+
