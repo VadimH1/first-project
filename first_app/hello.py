@@ -137,7 +137,7 @@ def delete_post(user_id):
     return "Deleted", 200
 
 
-@hello_urls.route('/api/v1/update-post/<user_id', methods=['PUT'])
+@hello_urls.route('/api/v1/update-post/<user_id>', methods=['PUT'])
 @login_required
 def update_post(user_id):
     """Редагування постів"""
