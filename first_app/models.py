@@ -1,9 +1,9 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime
-from .db import Base      #from first_app.db import Base
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey
+from .db import db      #from first_app.db import Base
 from datetime import datetime
 
 
-class User(Base):
+class User(db.Model):
 	__tablename__ = 'user'
 	id = Column(Integer, primary_key=True)
 	phone_number = Column(Text(), unique=True)
@@ -31,12 +31,13 @@ class User(Base):
 		return f'{self.first_name} {self.second_name}'
 		
 
-class Post(Base):
+class Post(db.Model):
 	__tablename__ = 'post'
 	id = Column(Integer, primary_key=True)
-	author_id = Column(Integer,nullable=False)
+	author_id = Column(Integer, ForeignKey('user.id'), nullable=False)
 	title = Column(String(100), nullable=False)
 	body = Column(String(100), nullable=False)
+	is_deleted = Column(Boolean(), default=False)
 	created =Column(DateTime, nullable=False, default=datetime.utcnow())
 	
 
@@ -48,7 +49,14 @@ class Post(Base):
 
 
 	def __repr__(self):
-		return f'Post("{self.title}", "{self.body}", "{self.created}")'			
-		
-		
-		
+		return f'Post("{self.title}", "{self.body}", "{self.created}")'
+
+class Comments(db.Model):
+	__tablename__ = 'comments'
+
+	id = Column(Integer, primary_key=True)
+	author_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+	post_id = Column(Integer, ForeignKey('post.id'), nullable=False)
+	text = Column(String(100), nullable=False)
+	is_deleted = Column(Boolean(), default=False)
+	created =Column(DateTime, nullable=False, default=datetime.utcnow())
