@@ -173,3 +173,41 @@ def user_post(post_id):
     """Виводимо пост користувача"""
     post = Post.query.get(post_id)
     return "Пост користувача", 200
+
+
+@hello_urls.route('/api/v1/user-info/edit/<user_id>', methods=['PUT'])
+@login_required
+def edit_user_info(user_id):
+    data = request.json
+    _phone_number = data['phone_number']
+    _first_name = data['first_name']
+    _second_name = data['second_name']
+
+    user_info = User.query.filter(User.phone_number==_phone_number).one()
+
+    if user_info is _phone_number:
+        return (f'This {_phone_number} is already exists')
+    
+    new_info = User(phone_number=_phone_number, first_name=_first_name, second_name=_second_name)
+    db.session.add(new_info)
+    db.commit()
+
+
+@hello_urls.route('/api/vi/user-info/change-password', methods=['PUT'])
+@login_required
+def change_user_password(user_id):
+    data = request.json
+    old_password = data['password']
+    new_password = data['new_password']
+
+    user = User.query.filter(User.id==user_id)
+
+    if old_password == user.password:
+    # if check_password_hash(password_hash, password)    
+        return {'Password confirmed. You can change new password'}
+    
+    new_password = User(new_password=generate_password_hash(new_password, method='sha256'))
+    db.session.add(new_password)
+    db.commit()
+
+
