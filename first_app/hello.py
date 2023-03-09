@@ -5,10 +5,11 @@ import jwt
 from flask import Flask, Blueprint, request, render_template, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
-from flask import g, request, redirect, url_for
+from flask import g, redirect, url_for
 from .models import Post, User
-from .db import get_db, db_session
 from . import db
+
+# app = create_app()
 
 hello_urls = Blueprint("sync", __name__)
 
@@ -91,13 +92,11 @@ def login_api():
 
     # user_id має знаходитись в середині JWT.
     token_data = {"user_id": user["id"]}
-    access_token = jwt.encode(token_data, app.config['SECRET_KEY'], algorithm='HS256')
+    access_token = jwt.encode(token_data, app.config['SECRET_KEY'], algorithm='HS256') 
     return {"access_token": access_token}, 200
 
 
 @hello_urls.route("/api/v1/user-info/<user_id>", methods=['GET'])
-# @is_authenticated https://pythonworld.ru/osnovy/dekoratory.html
-# Треба створити декоратор, який буде дозволяти доступ до апі тільки залогіненим користувачам.
 @login_required
 def user_info_api(user_id):
     user = User.query.filter(User.id == user_id).one()
@@ -109,42 +108,49 @@ def user_info_api(user_id):
     }, 200
     
     
-@hello_urls.route('/api/v1/user-posts/<user_id>', methods=['POST'])
+@hello_urls.route('/api/v1/create-post/<user_id>', methods=['POST'])
 @login_required
 def create_post(user_id):
-    posts = Post.query.all()
-    posts = []
-    for post in posts:
-        posts.append({
-        "id": post["id"],
-        "title": post["title"],
-        "body": post["body"],
-        "created": post["created"],	
-	})    
-    return json(posts)
-    
-
-@hello_urls.route('/api/v1/edit-posts/<user_id>', methods=['GET','POST'])
-def post_edit(user_id):
+    """Створення постів"""
     data = request.json
+    title = data['title']
+    body = data['body']
+    created = data['create']	
+    author_id = None
+
+    post = Post(title, body, created, author_id)
+    db.session.add(post)
+    db.session.commit()
+
+    return "Create", 200
+    
+    
+@hello_urls.route('/api/v1/delete-post/<user_id>', methods=['DELETE'])
+@login_required
+def delete_post(user_id):
+    """Видалення постів"""
     post = Post.query.get(user_id)
-    if request.method == "POST":
-        post.title = data['title']
-        post.body = data['body']
-        post.created = data['created']
-        db.session.commit()
-            		        
-    return "Post edited", 200	
-    
-    
-@hello_urls.route('/api/v1/delete-post/<user_id>', methods=['GET','POST'])
-def delete_posts(post_id):
-    post = Post.query.filter_by(id=post_id, user_id=User.id).first()
     db.session.delete(post)
     db.session.commit()
         
-    return "Post deleted", 200
-    
+    return "Deleted", 200
+
+
+@hello_urls.route('/api/v1/update-post/<user_id>', methods=['PUT'])
+@login_required
+def update_post(user_id):
+    """Редагування постів"""
+    data = request.json
+    title = data['title']
+    body = data['body']
+    created = data['create']	
+    author_id = None
+
+    post = Post.query.get(user_id)
+    db.session.commit()
+
+    return "Updated", 200
+
 
 @hello_urls.route("/api/v1/who-i-am/<int:user_id>", methods=['GET'])
 @login_required
@@ -153,12 +159,55 @@ def api_for_who_i_am(user_id):
         return {"error": "Requested data is not yours"}
 
  
-@hello_urls.route('/api/v1/<user_id>/posts/<post_id>', methods=['GET'])
-def get_user_posts(post_id):
-    """Виведення постів по користувачу. Виводимо пост користувача"""
-    post = Post.query.get(post_id)
-    return "Отримали пост користувача", 200
+@hello_urls.route('/api/v1/<user_id>/posts/', methods=['GET'])
+@login_required
+def get_user_post(user_id):
+    """Список постів юзера"""
+    post = Post.query.all(user_id)
+    return "Отримали пости юзера", 200
 
-# https://docs.sqlalchemy.org/en/14/orm/query.html#sqlalchemy.orm.Query -> вивчити
-    user = User.query.filter(User.id == user_id).one()
+
+@hello_urls.route('/api/v1/<user_id>/post/<post_id>', methods=['GET'])
+@login_required
+def user_post(post_id):
+    """Виводимо пост користувача"""
+    post = Post.query.get(post_id)
+    return "Пост користувача", 200
+
+
+@hello_urls.route('/api/v1/user-info/edit/<user_id>', methods=['PUT'])
+@login_required
+def edit_user_info(user_id):
+    data = request.json
+    _phone_number = data['phone_number']
+    _first_name = data['first_name']
+    _second_name = data['second_name']
+
+    user_info = User.query.filter(User.phone_number==_phone_number).one()
+
+    if user_info is _phone_number:
+        return (f'This {_phone_number} is already exists')
+    
+    new_info = User(phone_number=_phone_number, first_name=_first_name, second_name=_second_name)
+    db.session.add(new_info)
+    db.commit()
+
+
+@hello_urls.route('/api/vi/user-info/change-password', methods=['PUT'])
+@login_required
+def change_user_password(user_id):
+    data = request.json
+    old_password = data['password']
+    new_password = data['new_password']
+
+    user = User.query.filter(User.id==user_id)
+
+    if old_password == user.password:
+    # if check_password_hash(password_hash, password)    
+        return {'Password confirmed. You can change new password'}
+    
+    new_password = User(new_password=generate_password_hash(new_password, method='sha256'))
+    db.session.add(new_password)
+    db.commit()
+
 
