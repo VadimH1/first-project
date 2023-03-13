@@ -49,14 +49,23 @@ class Post(db.Model):
 
 
 	def __repr__(self):
-		return f'Post("{self.title}", "{self.body}", "{self.created}")'
+		return f'Post("{self.title}", "{self.body}", {self.created})'
+
 
 class Comments(db.Model):
 	__tablename__ = 'comments'
-
 	id = Column(Integer, primary_key=True)
 	author_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-	post_id = Column(Integer, ForeignKey('post.id'), nullable=False)
+	post_id = Column(Integer, ForeignKey('user.id'), nullable=False)
 	text = Column(String(100), nullable=False)
+	created = Column(DateTime, nullable=False, default=datetime.utcnow())
 	is_deleted = Column(Boolean(), default=False)
-	created =Column(DateTime, nullable=False, default=datetime.utcnow())
+
+	def __init__(self, *args, **kwargs) -> None:
+		super(Comments, self).__init__(self, *args, **kwargs)
+
+	def __repr__(self):
+		return f'Comments({self.author_id}, {self.text}, {self.created})'	
+
+	# def __repr__(self):
+	# 	return f'{self.__class__}: {self.text}", {self.created}'

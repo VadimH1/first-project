@@ -1,12 +1,12 @@
 
 import os
-import json
+import json #jsonify ?
 import jwt
 from flask import Flask, Blueprint, request, render_template, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 from flask import g, redirect, url_for
-from .models import Post, User
+from .models import Post, User, Comments
 from . import db
 
 # app = create_app()
@@ -192,6 +192,8 @@ def edit_user_info(user_id):
     db.session.add(new_info)
     db.commit()
 
+    return {}, 200
+
 
 @hello_urls.route('/api/vi/user-info/change-password', methods=['PUT'])
 @login_required
@@ -209,5 +211,47 @@ def change_user_password(user_id):
     new_password = User(new_password=generate_password_hash(new_password, method='sha256'))
     db.session.add(new_password)
     db.commit()
+
+    return "Password changed", 200
+
+
+@hello_urls.route('/api/v1/create-comments/<user_id>', methods=['POST'])
+def create_comment(user_id):
+    """Додавання нового коментаря"""
+    data = request.json
+    text = data['text']
+    created = data['created']
+    new_comm = Comments(text, created)
+    
+    db.session.add(new_comm)
+    db.commit()
+
+    comment = Comments.query.get(new_comm.id)
+    return "Comment created", 200
+
+
+@hello_urls.route('/api/v1/update-comments/<user_id>', methods=['PUT'])    
+def update_comment(user_id):
+    """Редагування(оновлення) коментарів"""
+    data = request.json
+    comment = Comments.query.get(user_id)
+    text = data['text']
+    created = data['created']
+
+    comment.text = text
+    comment.created = created
+
+    db.session.commit()
+    return "Comment updated", 200
+
+
+@hello_urls.route('/api/v1/delete-comments', methods=['DELETE'])
+def delete_comment(user_id):
+    """Видалення коментарів"""
+    comment = Comments.query.get(user_id)
+    db.session.delete(comment)
+    db.commit()
+
+    return "Comment deleted", 200
 
 
