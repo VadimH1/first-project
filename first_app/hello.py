@@ -8,6 +8,7 @@ from functools import wraps
 from flask import g, redirect, url_for
 from .models import Post, User, Comments
 from . import db
+from werkzeug.utils import secure_filename
 
 # app = create_app()
 
@@ -253,5 +254,14 @@ def delete_comment(user_id):
     db.commit()
 
     return "Comment deleted", 200
+
+
+@hello_urls.route('/api/v1/upload-files', methods=['POST'])
+def upload_files():
+    uploaded_files = request.files['file']
+    if uploaded_files.filename != '':
+        uploaded_files.save(secure_filename(uploaded_files.filename))
+
+    return "Added images"    
 
 
