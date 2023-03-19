@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey
-from .db import db      #from first_app.db import Base
+from .db import db
 from datetime import datetime
 
 
@@ -69,3 +69,13 @@ class Comments(db.Model):
 
 	# def __repr__(self):
 	# 	return f'{self.__class__}: {self.text}", {self.created}'
+
+
+class Upload(db.Model):
+	id = Column(Integer, primary_key=True)
+	name = Column(String(50), nullable=False)
+	url = Column(String(200))	
+
+	def __init__(self, name, url):
+		self.name = name
+		self.url = url

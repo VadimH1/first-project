@@ -2,15 +2,14 @@
 import os
 import json #jsonify ?
 import jwt
-from flask import Flask, Blueprint, request, render_template, flash, session
+from flask import Flask, Blueprint, request, render_template, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 from flask import g, redirect, url_for
-from .models import Post, User, Comments
+from .models import Post, User, Comments, Upload
 from . import db
 from werkzeug.utils import secure_filename
-
-# app = create_app()
+from .config import SECRET_KEY
 
 hello_urls = Blueprint("sync", __name__)
 
@@ -30,7 +29,7 @@ def index():
         }
         return render_template("index.html", income_form_data=_data)
 
-# Add comment to the api
+
 @hello_urls.route("/api/v1/register-user", methods=['POST'])
 def register_user_api():
     data = request.json
@@ -39,7 +38,7 @@ def register_user_api():
     second_name = data["second_name"]
     password = data["password"]
     
-    user = User('phone_number', 'first_name', 'second_name', 'password')
+    user = User("phone_number", "first_name", "second_name", "password")
     db.session.add(user)
     db.session.commit()
 
@@ -53,18 +52,15 @@ def login_required(f):
         user_id = int(kwargs.get("user_id"))
             # JSON WEB TOKEN 
         access_token = request.headers.get("Authorization")
-        payload = jwt.decode(access_token, app.config['SECRET_KEY'], algorithms=["HS256"])
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=["HS256"])
         token_user_id = payload["user_id"]
-            # 1) Взяти токен з headers Authorization.
-            # 2) Валідувати токен за допомогою бібліотек.
-            # 3) Дістати user_id з payload і зробити перевірки.
         if not token_user_id:
             return {"error": "Користувач не авторизований"}, 403
         
         user = User.qurey.filter(User.id == token_user_id).one()
 
         if not user:
-            return {"error": f"Користувач не існує  {user_id}"}, 404
+            return {"error": f"Користувач не існує {user_id}"}, 404
 
         if int(token_user_id) != user["id"]:
             return {"error": "Користувач запитує не свою інформацію"}, 403
@@ -91,9 +87,8 @@ def login_api():
     if not check_password_hash(user['password'], income_password): # "reretrerf328432y4324dejbcf" != "password1"
         return {"error": f"Паролі не співпадають {income_phone_number}"}, 404
 
-    # user_id має знаходитись в середині JWT.
     token_data = {"user_id": user["id"]}
-    access_token = jwt.encode(token_data, app.config['SECRET_KEY'], algorithm='HS256') 
+    access_token = jwt.encode(token_data, SECRET_KEY, algorithm='HS256') 
     return {"access_token": access_token}, 200
 
 
@@ -123,7 +118,7 @@ def create_post(user_id):
     db.session.add(post)
     db.session.commit()
 
-    return "Create", 200
+    return {"Status": "Created post"}, 200
     
     
 @hello_urls.route('/api/v1/delete-post/<user_id>', methods=['DELETE'])
@@ -134,46 +129,69 @@ def delete_post(user_id):
     db.session.delete(post)
     db.session.commit()
         
-    return "Deleted", 200
+    return {"Status": "Deleted post"}, 200
 
 
-@hello_urls.route('/api/v1/update-post/<user_id>', methods=['PUT'])
+@hello_urls.route('/api/v1/update-post/<post_id>/<user_id>', methods=['PUT'])
 @login_required
-def update_post(user_id):
-    """Редагування постів"""
+def update_post(user_id, post_id):
+    """Оновлення постів"""
     data = request.json
     title = data['title']
     body = data['body']
     created = data['create']	
     author_id = None
 
-    post = Post.query.get(user_id)
+    post = Post.query.filter(Post.id == post_id, Post.author_id == user_id).first()
+    if not post:
+        return {"Error": "post not found"}, 400
+    
+    post.title = title
+    post.body = body
+    post.created = created
+    
     db.session.commit()
 
-    return "Updated", 200
+    return {"Status": "Updated"}, 200
 
 
 @hello_urls.route("/api/v1/who-i-am/<int:user_id>", methods=['GET'])
 @login_required
 def api_for_who_i_am(user_id):
     if user_id != g.user_id:
-        return {"error": "Requested data is not yours"}
+        return {"Error": "Requested data is not yours"}
 
  
 @hello_urls.route('/api/v1/<user_id>/posts/', methods=['GET'])
 @login_required
 def get_user_post(user_id):
     """Список постів юзера"""
-    post = Post.query.all(user_id)
-    return "Отримали пости юзера", 200
+    user_post = []
+    post = Post.query.filter(Post.author_id==user_id).all()
+    post_data = {
+        "id": post.id,
+        "author_id": post.author_id,
+        "title": post.title,
+        "body": post.body,
+        "created": post.created
+    }
+    user_post.append(post_data)
+
+    return {user_post}, 200
 
 
 @hello_urls.route('/api/v1/<user_id>/post/<post_id>', methods=['GET'])
 @login_required
-def user_post(post_id):
+def user_post(post_id, user_id):
     """Виводимо пост користувача"""
-    post = Post.query.get(post_id)
-    return "Пост користувача", 200
+    post = Post.query.filter(Post.id == post_id, Post.author_id == user_id).one()
+    
+    return {
+        "id": post.id,
+        "title": post.title,
+        "body": post.body,
+        "created": post.created
+    }, 200
 
 
 @hello_urls.route('/api/v1/user-info/edit/<user_id>', methods=['PUT'])
@@ -190,13 +208,12 @@ def edit_user_info(user_id):
         return (f'This {_phone_number} is already exists')
     
     new_info = User(phone_number=_phone_number, first_name=_first_name, second_name=_second_name)
-    db.session.add(new_info)
     db.commit()
 
     return {}, 200
 
 
-@hello_urls.route('/api/vi/user-info/change-password', methods=['PUT'])
+@hello_urls.route('/api/vi/user-info/change-password/<user_id>', methods=['PUT'])
 @login_required
 def change_user_password(user_id):
     data = request.json
@@ -213,10 +230,10 @@ def change_user_password(user_id):
     db.session.add(new_password)
     db.commit()
 
-    return "Password changed", 200
+    return {"Status": "Password changed"}, 200
 
 
-@hello_urls.route('/api/v1/create-comments/<user_id>', methods=['POST'])
+@hello_urls.route('/api/v1/create-comments/<user_id>/<post_id>', methods=['POST'])
 def create_comment(user_id):
     """Додавання нового коментаря"""
     data = request.json
@@ -228,40 +245,52 @@ def create_comment(user_id):
     db.commit()
 
     comment = Comments.query.get(new_comm.id)
-    return "Comment created", 200
+
+    return {"Status": "Comment created"}, 200
 
 
-@hello_urls.route('/api/v1/update-comments/<user_id>', methods=['PUT'])    
-def update_comment(user_id):
+@hello_urls.route('/api/v1/<comment_id>/update-comments/<user_id>', methods=['PUT'])    
+def update_comment(user_id, comment_id):
     """Редагування(оновлення) коментарів"""
     data = request.json
-    comment = Comments.query.get(user_id)
     text = data['text']
     created = data['created']
 
+    comment = Comments.query.get(user_id)
+    if not comment:
+        return {"Error": "This user hasn't comments"}
+    
     comment.text = text
     comment.created = created
 
     db.session.commit()
-    return "Comment updated", 200
+    return {"Status": "Comment updated"}, 200
 
 
-@hello_urls.route('/api/v1/delete-comments', methods=['DELETE'])
-def delete_comment(user_id):
+@hello_urls.route('/api/v1/<user_id>/delete-comments/<comments_id>', methods=['DELETE'])
+def delete_comment(user_id, comment_id):
     """Видалення коментарів"""
-    comment = Comments.query.get(user_id)
+    comment = Comments.query.filter(Comments.id==comment_id, Comments.author_id==user_id)
     db.session.delete(comment)
     db.commit()
 
-    return "Comment deleted", 200
+    return {"Status": "Comment deleted"}
 
 
 @hello_urls.route('/api/v1/upload-files', methods=['POST'])
 def upload_files():
-    uploaded_files = request.files['file']
-    if uploaded_files.filename != '':
-        uploaded_files.save(secure_filename(uploaded_files.filename))
+    file = request.files['file']
+    if not file:
+        return {"No file uploaded"}, 400
+    upload = Upload(name=file.name, url=file.url)
+    db.session.add(upload)
+    db.session.commit()
 
-    return "Added images"    
+    # uploaded_files = request.files['file']
+    # if uploaded_files.filename != '':
+    #     uploaded_files.save(secure_filename(uploaded_files.filename))
+
+    return {"File downloaded"}, 200    
+
 
 
