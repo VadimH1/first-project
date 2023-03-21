@@ -61,8 +61,14 @@ class Comments(db.Model):
 	created = Column(DateTime, nullable=False, default=datetime.utcnow())
 	is_deleted = Column(Boolean(), default=False)
 
-	def __init__(self, *args, **kwargs) -> None:
-		super(Comments, self).__init__(self, *args, **kwargs)
+	def __init__(self, author_id=None, post_id=None, text=None, created=None):
+		self.author_id=author_id
+		self.post_id=post_id
+		self.text=text
+		self.created=created
+		
+	# def __init__(self, *args, **kwargs) -> None:
+	# 	super(Comments, self).__init__(self, *args, **kwargs)
 
 	def __repr__(self):
 		return f'Comments({self.author_id}, {self.text}, {self.created})'	
