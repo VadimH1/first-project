@@ -206,19 +206,19 @@ def edit_user_info(user_id):
     return {"Status": "Info about user was changed"}, 200
 
 
-@hello_urls.route('/api/vi/user-info/change-password/<user_id>', methods=['PUT'])
+@hello_urls.route('/api/vi/change-user-password/<user_id>', methods=['PUT'])
 @login_required
 def change_user_password(user_id):
     data = request.json
     old_password = data['old_password']
-    new_password = data['new_password']
+    new_password = data['new_password']         
 
     user = User.query.filter(User.id == user_id).first()
 
     # if new_password == old_password:
     # # if check_password_hash(password_hash, password)    
     #     return {'Password confirmed. You can change new password'}
-    
+    # user.password = generate_password_hash(new_password)
     new_password = User(generate_password_hash(new_password, method='sha256'))
     # db.session.add(new_password)
     db.session.commit()
@@ -274,8 +274,9 @@ def delete_comment(user_id):
 
 
 @hello_urls.route('/api/v1/upload-files', methods=['POST'])
+# @login_required
 def upload_files():
-    file = request.files['file']
+    file = request.json['file']
     if not file:
         return {"No file uploaded"}, 400
     upload = Upload(name=file.name, url=file.url)
