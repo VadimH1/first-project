@@ -1,0 +1,58 @@
+<!--
+    https://api.jquery.com
+    # Сворити форму реєстрації яка буде при успішній реєстрації переадресовувати користувача на форму логіну (через JS)
+    # Користувач має залогінитись та бути переадресованим на головну сторінку.
+    # На головній треба відобразити на хедері ім'я користувача так кнопочку вилогінитись (LogOut)
+    # При натисканні на кнопку - користувач має бути вилогінений з системи.
+ -->
+
+ <!DOCTYPE html>
+ <html>
+ <head>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+ <title>Page Title</title>
+ </head>
+ <body>
+ <div>
+     <a href="/"> Main page </a>
+ </div>
+ 
+ <h1>Login Form</h1>
+ 
+ PhoneNumber: <input type="text" name="phoneNumber" id="phoneNumber"><br>
+ Password: <input type="text" name="password" id="password"><br>
+ <input type="button" id="loginButton" name="loginButton" value="Login Button">
+ 
+ <p style="visibility: hidden;" id="errorRequiredFields">Required fields is empty</p>
+ <p style="visibility: hidden; color: red;" id="loginOrPasswordInvalid">Login or password invalid</p>
+ 
+ </body>
+ <script type="text/javascript">
+     $( "#loginButton" ).on('click', function() {
+         var phoneNumber = $( "#phoneNumber" ).val();
+         var password = $( "#password" ).val();
+         if (phoneNumber === "" || password === "") {
+             $('#errorRequiredFields').css( "visibility", "visible" );
+             return
+         }
+         $.ajax({
+           url: "/api/v1/login",
+           method: "POST",
+           dataType: "json",
+           contentType: "application/json; charset=utf-8",
+           data: JSON.stringify({
+             phone_number: phoneNumber,
+             password: password,
+           }),
+           success: function( result ) {
+            var url = "/";
+            $(location).attr('href', url)
+            localStorage.setItem('token', result.access_token);
+           },
+           error: function (request, status, error) {
+                 $('#loginOrPasswordInvalid').css( "visibility", "visible" );
+             }
+         });
+ });
+ </script>
+ </html>

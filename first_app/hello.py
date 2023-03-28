@@ -9,28 +9,29 @@ from flask import g, redirect, url_for
 from .models import Post, User, Comments, Upload
 from .db import db
 from werkzeug.utils import secure_filename
-from .config import SECRET_KEY
+from .config import SECRET_KEY, UPLOAD_FOLDER
 import datetime
+
 
 hello_urls = Blueprint("sync", __name__)
 
-# @hello_urls.route("/", methods=['GET', 'POST'])
-# def index():
-#     if request.method == "GET":
-#         print("Ми викликали GET")
-#         return render_template("index.html")
+@hello_urls.route("/", methods=['GET', 'POST'])
+def index():
+    if request.method == "GET":
+        print("Ми викликали GET")
+        return render_template("index.html")
 
-#     if request.method == "POST":
-#         print("Ми викликали POST")
-#         form = request.form # ImmutableMultiDict([('fname', 'Andy'), ('lname', 'KOOccccc')])
-#         # import pdb; pdb.set_trace()
-#         _data = {
-#             "fname": form["fname"],
-#             "lname": form["lname"]
-#         }
-#         return render_template("index.html", income_form_data=_data)
+    if request.method == "POST":
+        print("Ми викликали POST")
+        form = request.form # ImmutableMultiDict([('fname', 'Andy'), ('lname', 'KOOccccc')])
+        # import pdb; pdb.set_trace()
+        _data = {
+            "fname": form["fname"],
+            "lname": form["lname"]
+        }
+        return render_template("index.html", income_form_data=_data)
 
-# Working code
+
 @hello_urls.route("/api/v1/register-user", methods=['POST'])
 def register_user_api():
     data = request.json
@@ -66,6 +67,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return _wrapper
 
+
 @hello_urls.route("/api/v1/login", methods=['POST'])
 def login_api():
     data = request.json # Analog
@@ -85,7 +87,7 @@ def login_api():
     access_token = jwt.encode(token_data, SECRET_KEY, algorithm='HS256') 
     return {"access_token": access_token}, 200
 
-# Working code
+
 @hello_urls.route("/api/v1/user-info/<user_id>", methods=['GET'])
 @login_required
 def user_info_api(user_id):
@@ -94,7 +96,7 @@ def user_info_api(user_id):
         return {"Неверный логин или пароль"}, 400
     return {"info": user.full_name()}, 200
     
-# Working code    
+   
 @hello_urls.route('/api/v1/create-post/<user_id>', methods=['POST'])
 @login_required
 def create_post(user_id):
@@ -111,7 +113,7 @@ def create_post(user_id):
 
     return {"Status": "Created post"}, 200
     
-# Working code    
+    
 @hello_urls.route('/api/v1/delete-post/<user_id>', methods=['DELETE'])
 @login_required
 def delete_post(user_id):
@@ -122,7 +124,7 @@ def delete_post(user_id):
         
     return {"Status": "Deleted post"}, 200
 
-# Working code
+
 @hello_urls.route('/api/v1/update-post/<post_id>/<user_id>', methods=['PUT'])
 @login_required
 def update_post(post_id, user_id):
@@ -153,7 +155,7 @@ def update_post(post_id, user_id):
 #     if user_id != g.user_id:
 #         return {"Error": "Requested data is not yours"}
 
-# Working code 
+ 
 @hello_urls.route('/api/v1/<user_id>/posts', methods=['GET'])
 @login_required
 def get_user_post(user_id):
@@ -170,7 +172,7 @@ def get_user_post(user_id):
 
     return {"user_list_post": user_post}, 200
 
-# Working code
+
 @hello_urls.route('/api/v1/<user_id>/post/<post_id>', methods=['GET'])
 @login_required
 def user_post(user_id, post_id):
@@ -184,7 +186,7 @@ def user_post(user_id, post_id):
         "created": post.created
     }, 200
 
-# Working code
+
 @hello_urls.route('/api/v1/edit-user-info/<user_id>', methods=['PUT'])
 @login_required
 def edit_user_info(user_id):
@@ -194,9 +196,6 @@ def edit_user_info(user_id):
     _second_name = data['second_name']
 
     user_info = User.query.filter(User.id==user_id).first()
-
-    # if user_info is _phone_number:
-    #     return (f'This {_phone_number} is already exists')
     
     new_info = User(phone_number=_phone_number, first_name=_first_name, second_name=_second_name)
 
@@ -215,17 +214,13 @@ def change_user_password(user_id):
 
     user = User.query.filter(User.id == user_id).first()
 
-    # if new_password == old_password:
-    # # if check_password_hash(password_hash, password)    
-    #     return {'Password confirmed. You can change new password'}
-    # user.password = generate_password_hash(new_password)
-    new_password = User(generate_password_hash(new_password, method='sha256'))
-    # db.session.add(new_password)
+    user.password = generate_password_hash(new_password, method='sha256')
+
     db.session.commit()
 
-    return {"Status": "Password changed"}, 200
+    return {"new_password": new_password}, 200
 
-# Working code
+
 @hello_urls.route('/api/v1/create-comments/<user_id>', methods=['POST'])
 def create_comment(user_id):
     """Додавання нового коментаря"""
@@ -243,7 +238,7 @@ def create_comment(user_id):
 
     return {"Status": "Comment created"}, 200
 
-# Working code
+
 @hello_urls.route('/api/v1/<comment_id>/update-comments/<user_id>', methods=['PUT'])    
 def update_comment(comment_id, user_id):
     """Редагування(оновлення) коментарів"""
@@ -261,7 +256,7 @@ def update_comment(comment_id, user_id):
     db.session.commit()
     return {"Status": "Comment updated"}, 200
 
-# Working code
+
 @hello_urls.route('/api/v1/<user_id>/delete-comment', methods=['DELETE'])
 @login_required
 def delete_comment(user_id):
@@ -274,20 +269,18 @@ def delete_comment(user_id):
 
 
 @hello_urls.route('/api/v1/upload-files', methods=['POST'])
-# @login_required
 def upload_files():
-    file = request.json['file']
-    if not file:
-        return {"No file uploaded"}, 400
-    upload = Upload(name=file.name, url=file.url)
+    uploaded_files = request.files['file']
+
+    if uploaded_files.filename != '':
+        uploaded_files.save(secure_filename(uploaded_files.filename))
+
+    path_to_file = uploaded_files.save(os.path.join(UPLOAD_FOLDER, secure_filename(uploaded_files.filename)))    
+    upload = Upload(url = uploaded_files.filename)
     db.session.add(upload)
     db.session.commit()
 
-    # uploaded_files = request.files['file']
-    # if uploaded_files.filename != '':
-    #     uploaded_files.save(secure_filename(uploaded_files.filename))
-
-    return {"File downloaded"}, 200    
+    return {"status":"File downloaded"}, 200    
 
 
 

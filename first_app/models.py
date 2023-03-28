@@ -56,7 +56,7 @@ class Comments(db.Model):
 	__tablename__ = 'comments'
 	id = Column(Integer, primary_key=True)
 	author_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-	post_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+	post_id = Column(Integer, ForeignKey('post.id'), nullable=False)
 	text = Column(String(100), nullable=False)
 	created = Column(DateTime, nullable=False, default=datetime.utcnow())
 	is_deleted = Column(Boolean(), default=False)
@@ -78,11 +78,11 @@ class Comments(db.Model):
 
 
 class Upload(db.Model):
+	__tablename__ = 'upload'
 	id = Column(Integer, primary_key=True)
-	image_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-	name = Column(String(50), nullable=False)
+	# image_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+	# name = Column(String(50), nullable=False)
 	url = Column(String(200))	
 
-	def __init__(self, name, url):
-		self.name = name
+	def __init__(self, url):
 		self.url = url
