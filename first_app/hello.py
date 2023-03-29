@@ -1,12 +1,13 @@
 
 import os
-import json #jsonify ?
+import json 
 import jwt
-from flask import Flask, Blueprint, request, render_template, session
+from flask import Flask, Blueprint, request, render_template, session, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 from flask import g, redirect, url_for
 from .models import Post, User, Comments, Upload
+from .schemas import PostSchema, UserSchema, CommentsSchema, UploadSchema
 from .db import db
 from werkzeug.utils import secure_filename
 from .config import SECRET_KEY, UPLOAD_FOLDER
@@ -14,6 +15,10 @@ import datetime
 
 
 hello_urls = Blueprint("sync", __name__)
+post_urls = Blueprint("post", __name__)
+comment_urls = Blueprint("comment", __name__)
+upload_urls = Blueprint("upload", __name__)
+
 
 @hello_urls.route("/", methods=['GET', 'POST'])
 def index():
@@ -30,7 +35,13 @@ def index():
             "lname": form["lname"]
         }
         return render_template("index.html", income_form_data=_data)
-
+    
+@hello_urls.route("/", methods=['GET', 'POST'])
+def registation_form():
+    if request.method == "GET":
+        print("We called method GET")
+        return render_template("registration.html")
+        
 
 @hello_urls.route("/api/v1/register-user", methods=['POST'])
 def register_user_api():
@@ -44,7 +55,9 @@ def register_user_api():
     db.session.add(user)
     db.session.commit()
 
-    return {}, 200
+    user_schema = UserSchema(many=True)
+
+    return jsonify(user_schema.dump(user))
 
 
 def login_required(f):
@@ -92,12 +105,16 @@ def login_api():
 @login_required
 def user_info_api(user_id):
     user = User.query.filter(User.id == user_id).first()
+    
     if not user:
         return {"Неверный логин или пароль"}, 400
-    return {"info": user.full_name()}, 200
+    
+    user_schema = UserSchema(many=True)
+    
+    return jsonify(user_schema.dump(user)) # {"info": user.full_name()}, 200
     
    
-@hello_urls.route('/api/v1/create-post/<user_id>', methods=['POST'])
+@post_urls.route('/api/v1/create-post/<user_id>', methods=['POST'])
 @login_required
 def create_post(user_id):
     """Створення постів"""
@@ -107,14 +124,16 @@ def create_post(user_id):
     created = data['created']	
     author_id = None
 
-    post = Post(title=title, body=body, created=datetime.datetime.now(), author_id=user_id)
+    post = Post(title=title, body=body, created=datetime.datetime.utcnow(), author_id=user_id)
     db.session.add(post)
     db.session.commit()
 
-    return {"Status": "Created post"}, 200
+    post_schema = PostSchema(many=True)
+
+    return jsonify(post_schema.dump(post)) 
     
     
-@hello_urls.route('/api/v1/delete-post/<user_id>', methods=['DELETE'])
+@post_urls.route('/api/v1/delete-post/<user_id>', methods=['DELETE'])
 @login_required
 def delete_post(user_id):
     """Видалення постів"""
@@ -125,7 +144,7 @@ def delete_post(user_id):
     return {"Status": "Deleted post"}, 200
 
 
-@hello_urls.route('/api/v1/update-post/<post_id>/<user_id>', methods=['PUT'])
+@post_urls.route('/api/v1/update-post/<post_id>/<user_id>', methods=['PUT'])
 @login_required
 def update_post(post_id, user_id):
     """Оновлення постів"""
@@ -134,57 +153,52 @@ def update_post(post_id, user_id):
     body = data['body']
     created = data['created']	
     author_id = None  # author_id = g.request.user_id
+    image_id = data['image_id']
 
     post = Post.query.filter(Post.id == post_id, Post.author_id == user_id).first()
+    
     if not post:
         return {"Error": "post not found"}, 400
     
     post.title = title
     post.body = body
-    post.created = datetime.datetime.now()
+    post.created = datetime.datetime.utcnow()
 
     db.session.add(post)
     db.session.commit()
 
-    return {"Status": "Updated"}, 200
+    post_schema = PostSchema(many=True)
 
-
-# @hello_urls.route("/api/v1/who-i-am/<int:user_id>", methods=['GET'])
-# @login_required
-# def api_for_who_i_am(user_id):
-#     if user_id != g.user_id:
-#         return {"Error": "Requested data is not yours"}
+    return jsonify(post_schema.dump(post)) # {"Status": "Updated"}, 200
 
  
-@hello_urls.route('/api/v1/<user_id>/posts', methods=['GET'])
+@post_urls.route('/api/v1/<user_id>/posts', methods=['GET'])
 @login_required
 def get_user_post(user_id):
     """Список постів юзера"""
     user_post = []
     post = Post.query.filter(Post.author_id==user_id).all()
-    for i in post:
-        user_post.append({
-            "author_id": i.author_id,
-            "title": i.title,
-            "body": i.body,
-            "created": i.created
-        })
+    # for i in post:
+    #     user_post.append({
+    #         "author_id": i.author_id,
+    #         "title": i.title,
+    #         "body": i.body,
+    #         "created": i.created
+    #     })
+    post_schema = PostSchema(many=True)
 
-    return {"user_list_post": user_post}, 200
+    return jsonify(post_schema.dump(post))
 
 
-@hello_urls.route('/api/v1/<user_id>/post/<post_id>', methods=['GET'])
+@post_urls.route('/api/v1/<user_id>/post/<post_id>', methods=['GET'])
 @login_required
 def user_post(user_id, post_id):
     """Виводимо пост користувача"""
-    post = Post.query.filter(Post.id == post_id, Post.author_id == user_id).one()
+    post = Post.query.filter(Post.id == post_id, Post.author_id == user_id).first()
     
-    return {
-        "id": post.id,
-        "title": post.title,
-        "body": post.body,
-        "created": post.created
-    }, 200
+    user_post_schema = PostSchema(many=True)
+
+    return jsonify(user_post_schema.dump(post))
 
 
 @hello_urls.route('/api/v1/edit-user-info/<user_id>', methods=['PUT'])
@@ -194,15 +208,18 @@ def edit_user_info(user_id):
     _phone_number = data['phone_number']
     _first_name = data['first_name']
     _second_name = data['second_name']
+    _password = data['password']
 
     user_info = User.query.filter(User.id==user_id).first()
     
-    new_info = User(phone_number=_phone_number, first_name=_first_name, second_name=_second_name)
+    new_info = User(phone_number=_phone_number, first_name=_first_name, second_name=_second_name, password=_password)
 
     db.session.add(new_info)
     db.session.commit()
+
+    user_schema = UserSchema(many=True)
     
-    return {"Status": "Info about user was changed"}, 200
+    return jsonify(user_schema.dump(new_info))
 
 
 @hello_urls.route('/api/vi/change-user-password/<user_id>', methods=['PUT'])
@@ -218,10 +235,13 @@ def change_user_password(user_id):
 
     db.session.commit()
 
-    return {"new_password": new_password}, 200
+    user_schema = UserSchema(many=True)
+
+    return jsonify(user_schema.dump(user))
 
 
-@hello_urls.route('/api/v1/create-comments/<user_id>', methods=['POST'])
+@comment_urls.route('/api/v1/create-comments/<user_id>', methods=['POST'])
+@login_required
 def create_comment(user_id):
     """Додавання нового коментаря"""
     data = request.json
@@ -231,15 +251,18 @@ def create_comment(user_id):
     created = data['created']
     is_deleted = None
 
-    new_comm = Comments(text=text, created=datetime.datetime.now(), author_id=user_id, post_id=user_id)
+    new_comm = Comments(text=text, created=datetime.datetime.utcnow(), author_id=user_id, post_id=user_id)
     
     db.session.add(new_comm)
     db.session.commit()
 
-    return {"Status": "Comment created"}, 200
+    comment_schema = CommentsSchema(many=True)
+
+    return jsonify(comment_schema.dump(new_comm))
 
 
-@hello_urls.route('/api/v1/<comment_id>/update-comments/<user_id>', methods=['PUT'])    
+@comment_urls.route('/api/v1/<comment_id>/update-comments/<user_id>', methods=['PUT']) 
+@login_required   
 def update_comment(comment_id, user_id):
     """Редагування(оновлення) коментарів"""
     data = request.json
@@ -254,10 +277,13 @@ def update_comment(comment_id, user_id):
     comment.created = datetime.datetime.now()
 
     db.session.commit()
-    return {"Status": "Comment updated"}, 200
+
+    comment_schema = CommentsSchema(many=True)
+
+    return jsonify(comment_schema.dump(comment))
 
 
-@hello_urls.route('/api/v1/<user_id>/delete-comment', methods=['DELETE'])
+@comment_urls.route('/api/v1/<user_id>/delete-comment', methods=['DELETE'])
 @login_required
 def delete_comment(user_id):
     """Видалення коментарів"""
@@ -268,7 +294,7 @@ def delete_comment(user_id):
     return {"Status": "Comment deleted"}
 
 
-@hello_urls.route('/api/v1/upload-files', methods=['POST'])
+@upload_urls.route('/api/v1/upload-files', methods=['POST'])
 def upload_files():
     uploaded_files = request.files['file']
 
@@ -280,7 +306,8 @@ def upload_files():
     db.session.add(upload)
     db.session.commit()
 
-    return {"status":"File downloaded"}, 200    
+    upload_schema = UploadSchema()
+    return jsonify(upload_schema.dump(upload))    
 
 
 
