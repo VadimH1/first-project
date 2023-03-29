@@ -36,11 +36,11 @@ def index():
         }
         return render_template("index.html", income_form_data=_data)
     
-@hello_urls.route("/", methods=['GET', 'POST'])
+@hello_urls.route("/register", methods=['GET', 'POST'])
 def registation_form():
     if request.method == "GET":
         print("We called method GET")
-        return render_template("registration.html")
+        return render_template("registation.html")
         
 
 @hello_urls.route("/api/v1/register-user", methods=['POST'])
@@ -251,7 +251,11 @@ def create_comment(user_id):
     created = data['created']
     is_deleted = None
 
-    new_comm = Comments(text=text, created=datetime.datetime.utcnow(), author_id=user_id, post_id=user_id)
+    new_comm = Comments(
+        text=text,
+        created=datetime.datetime.utcnow(),
+        author_id=user_id, post_id=user_id
+    )
     
     db.session.add(new_comm)
     db.session.commit()
@@ -269,7 +273,10 @@ def update_comment(comment_id, user_id):
     text = data['text']
     created = data['created']
 
-    comment = Comments.query.filter(Comments.id == comment_id, Comments.author_id == user_id).first()
+    comment = Comments.query.filter(
+        Comments.id == comment_id,
+        Comments.author_id == user_id
+    ).first()
     if not comment:
         return {"Error": "This user hasn't comments"}
     

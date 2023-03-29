@@ -82,7 +82,7 @@ class Comments(db.Model):
 class Upload(db.Model):
 	__tablename__ = 'upload'
 	id = Column(Integer, primary_key=True)
-	# image_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+	# owner_id = Column(Integer, ForeignKey('user.id'), nullable=False)
 	# name = Column(String(50), nullable=False)
 	url = Column(String(200))	
 

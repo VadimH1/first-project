@@ -25,8 +25,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('comments', schema=None) as batch_op:
-        batch_op.drop_constraint(None, type_='foreignkey')
-        batch_op.create_foreign_key(None, 'user', ['post_id'], ['id'])
+        batch_op.create_foreign_key('post', 'user', ['post_id'], ['id'])
 
     # ### end Alembic commands ###
 
