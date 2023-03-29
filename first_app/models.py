@@ -6,10 +6,10 @@ from datetime import datetime
 class User(db.Model):
 	__tablename__ = 'user'
 	id = Column(Integer, primary_key=True)
-	phone_number = Column(Text(), unique=True)
-	first_name = Column(Text(), unique=False)
-	second_name = Column(Text(), unique=False)
-	password = Column(Text(), unique=False)
+	phone_number = Column(String(), unique=True)
+	first_name = Column(String(), unique=False)
+	second_name = Column(String(), unique=False)
+	password = Column(String(), unique=False)
 	
 	
 	def __init__(
@@ -38,14 +38,16 @@ class Post(db.Model):
 	title = Column(String(100), nullable=False)
 	body = Column(String(100), nullable=False)
 	is_deleted = Column(Boolean(), default=False)
-	created =Column(DateTime, nullable=False, default=datetime.utcnow())
+	created = Column(DateTime, nullable=False, default=datetime.utcnow())
+	image_id = Column(Integer, ForeignKey('upload.id'))
 	
 
-	def __init__(self, author_id=None, title=None, body=None, created =None):
+	def __init__(self, author_id=None, title=None, body=None, created=None, image_id=None):
 		self.author_id = author_id
 		self.title = title
 		self.body = body
-		self.created = created
+		self.created = datetime.utcnow()
+		self.image_id = image_id
 
 
 	def __repr__(self):
@@ -62,11 +64,11 @@ class Comments(db.Model):
 	is_deleted = Column(Boolean(), default=False)
 
 	def __init__(self, author_id=None, post_id=None, text=None, created=None):
-		self.author_id=author_id
-		self.post_id=post_id
-		self.text=text
-		self.created=created
-		
+		self.author_id = author_id
+		self.post_id = post_id
+		self.text = text
+		self.created = datetime.utcnow()
+
 	# def __init__(self, *args, **kwargs) -> None:
 	# 	super(Comments, self).__init__(self, *args, **kwargs)
 

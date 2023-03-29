@@ -1,15 +1,15 @@
 import os
 from flask import Flask
 
-from .hello import hello_urls
+from .hello import hello_urls, post_urls, comment_urls, upload_urls
 
 from flask_migrate import Migrate
+from flask_marshmallow import Marshmallow
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 def create_app(test_config=None):
     app = Flask(__name__, template_folder='templates', instance_relative_config=True)
-    # app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///instance/hello.sqlite"
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir,'data.sqlite')
     app.config.from_mapping(
         SECRET_KEY = 'dev'
@@ -29,7 +29,13 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate = Migrate(app, db)
 
+    ma = Marshmallow(app)
+
     app.register_blueprint(hello_urls)
+    app.register_blueprint(post_urls)
+    app.register_blueprint(comment_urls)
+    app.register_blueprint(upload_urls)
+
     return app
 
 if __name__ == '__main__':
