@@ -28,7 +28,7 @@ def create_app(test_config=None):
     from .db import db
     db.init_app(app)
     migrate = Migrate(app, db)
-
+    
     ma = Marshmallow(app)
 
     app.register_blueprint(hello_urls)

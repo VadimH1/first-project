@@ -40,7 +40,7 @@ def index():
 def registation_form():
     if request.method == "GET":
         print("We called method GET")
-        return render_template("registation.html")
+        return render_template("registration.html")
         
 
 @hello_urls.route("/api/v1/register-user", methods=['POST'])
