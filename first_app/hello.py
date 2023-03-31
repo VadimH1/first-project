@@ -28,8 +28,8 @@ def index():
 
     if request.method == "POST":
         print("Ми викликали POST")
-        form = request.form # ImmutableMultiDict([('fname', 'Andy'), ('lname', 'KOOccccc')])
-        # import pdb; pdb.set_trace()
+        form = request.form 
+
         _data = {
             "fname": form["fname"],
             "lname": form["lname"]
@@ -38,9 +38,11 @@ def index():
     
 @hello_urls.route("/register", methods=['GET', 'POST'])
 def registation_form():
-    if request.method == "GET":
-        print("We called method GET")
         return render_template("registration.html")
+    
+@hello_urls.route("/login", methods=['GET', 'POST'])
+def login_form():
+    return render_template("login.html")    
         
 
 @hello_urls.route("/api/v1/register-user", methods=['POST'])
@@ -55,9 +57,10 @@ def register_user_api():
     db.session.add(user)
     db.session.commit()
 
-    user_schema = UserSchema(many=True)
+    user_schema = UserSchema()
 
     return jsonify(user_schema.dump(user))
+    # return {"Status": "User was reistrate"}
 
 
 def login_required(f):
@@ -153,7 +156,6 @@ def update_post(post_id, user_id):
     body = data['body']
     created = data['created']	
     author_id = None  # author_id = g.request.user_id
-    image_id = data['image_id']
 
     post = Post.query.filter(Post.id == post_id, Post.author_id == user_id).first()
     

@@ -39,7 +39,7 @@ class Post(db.Model):
 	body = Column(String(100), nullable=False)
 	is_deleted = Column(Boolean(), default=False)
 	created = Column(DateTime, nullable=False, default=datetime.utcnow())
-	image_id = Column(Integer, ForeignKey('upload.id'))
+	# image_id = Column(Integer, ForeignKey('upload.id'))
 	
 
 	def __init__(self, author_id=None, title=None, body=None, created=None, image_id=None):

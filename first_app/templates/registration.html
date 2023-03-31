@@ -13,15 +13,17 @@
     </div>
     <h1>Registration Form</h1>
 
-    PhoneNumber: <input type="text" name="phoneNumber" id="phoneNumber"><br>
-    FirstName: <input type="text" name="firstName" id="firstName"><br>
-    SecondName: <input type="text" name="secondName" id="secondName"><br>
-    Password: <input type="text" name="password" id="password"><br>
+    PhoneNumber: <input type="text" name="phoneNumber" id="phoneNumber"><br><br>
+    FirstName: <input type="text" name="firstName" id="firstName"><br><br>
+    SecondName: <input type="text" name="secondName" id="secondName"><br><br>
+    Password: <input type="text" name="password" id="password"><br><br>
+    
     <input type="button" name="registerButton" id="registerButton" value="Registration Button">
 
-    <p style="visibility: hidden; color: red;" id="errorRequiredFields">Required fields is empty</p>
+    <!-- <p style="visibility: hidden; color: red;" id="errorRequiredFields">Required fields is empty</p> -->
+    <p style="visibility: hidden;" id="errorRequiredFields">Required fields is empty</p>
+    <p style="visibility: hidden; color: red;" id="invalidName">Invalid name</p>
 
-    
 </body>
 <script>
     $( "#registerButton" ).on('click', function() {
@@ -45,13 +47,13 @@
                 password: password
             }),
             success: function(data) {
-                var url = "/register";
+                var url = "/login";
                 $(location).attr('href', url)
                 // window.location.replace("login.html")
                 console.log(data)
             },
             error: function(request, status, error) {
-                $().css( "visibility", "visible" );
+                $('#invalidName').css( "visibility", "visible" );
             }
         }) 
     })
