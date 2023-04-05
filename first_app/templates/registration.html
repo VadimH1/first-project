@@ -27,10 +27,10 @@
 </body>
 <script>
     $( "#registerButton" ).on('click', function() {
-        var phoneNumber = $( '#phoneNumber' ).val() // const?
-        var firstName = $( '#firstName' ).val()
-        var secondName = $( '#secondName' ).val()
-        var password = $( '#password' ).val()
+        var phoneNumber = $( '#phoneNumber' ).val(); // const?
+        var firstName = $( '#firstName' ).val();
+        var secondName = $( '#secondName' ).val();
+        var password = $( '#password' ).val();
         if (phoneNumber === "" || firstName === ""|| secondName === "" || password === "") {
              $('#errorRequiredFields').css( "visibility", "visible" );
              return
@@ -49,8 +49,6 @@
             success: function(data) {
                 var url = "/login";
                 $(location).attr('href', url)
-                // window.location.replace("login.html")
-                console.log(data)
             },
             error: function(request, status, error) {
                 $('#invalidName').css( "visibility", "visible" );

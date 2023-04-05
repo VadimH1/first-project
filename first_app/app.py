@@ -10,6 +10,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 def create_app(test_config=None):
     app = Flask(__name__, template_folder='templates', instance_relative_config=True)
+    app.config['algorithms'] = ["HS256"]
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir,'data.sqlite')
     app.config.from_mapping(
         SECRET_KEY = 'dev'

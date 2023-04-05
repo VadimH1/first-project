@@ -6,7 +6,7 @@
 
 <body>
 
-  <h1>Welcome Username</h1>
+  <h1>Welcome User</h1>
   
     <form action="/" method="POST">
         <label for="fname">First name:</label><br>
@@ -47,20 +47,21 @@
 </head>
 
 <body>
-
 <hr>
 
 <div>
-    <a href="/login" style="visibility: visible;" id="loginPageLink"> Login Page </a><br>
-    <a href="/register" style="visibility: visible;" id="registerPageLink"> Register page </a><br>
+    <a href="/login" style="visibility: visible;" id="loginPageLink"><h1>Login Page</h1></a><br>
+  <hr>  
+    <a href="/register" style="visibility: visible;" id="registerPageLink"><h1>Register page</h1></a><br>
+  <hr>  
+    <a href="/create-post" style="visibility: hidden;" id="createPostLink"><h1>Create Post</h1></a>
 </div>
 
 <hr>
-
 <h1 id="textHeading">My First Heading</h1>
 <p id="textParagraph">My first paragraph.</p>
-
 <input type="text" name="input" id="changeTextInput">
+<hr>
 
 </body>
 
@@ -69,6 +70,7 @@
     if (token){
         $( "#loginPageLink").css( "visibility", "hidden" );
         $( "#registerPageLink").css( "visibility", "hidden" );
+        $("#createPostLink").css("visibility", "visible");
     }
     $('#logoutButton').on('click', function(){
       localStorage.removeItem('token');

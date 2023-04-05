@@ -43,6 +43,10 @@ def registation_form():
 @hello_urls.route("/login", methods=['GET', 'POST'])
 def login_form():
     return render_template("login.html")    
+
+@hello_urls.route("/create-post", methods=['GET', 'POST'])
+def create_post_form():
+    return render_template("create-post.html")
         
 
 @hello_urls.route("/api/v1/register-user", methods=['POST'])
@@ -66,21 +70,25 @@ def register_user_api():
 def login_required(f):
     @wraps(f)
     def _wrapper(*args, **kwargs):
-        user_id = int(kwargs.get("user_id"))
          
         access_token = request.headers.get("Authorization")
-        payload = jwt.decode(access_token, SECRET_KEY, algorithms=["HS256"])
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=["HS256"]) # .decode("utf-8")
         token_user_id = payload["user_id"] 
-              
+        g.user_id = token_user_id 
+        
+        if not access_token:
+            return {"Error": "access_token"}, 400
+    
         if not token_user_id:
             return {"error": "Користувач не авторизований"}, 403
             
         user = User.query.filter(User.id == token_user_id).first()
 
         if not user:
-            return {"error": f"Користувач не існує {user_id}"}, 404
-
+            return {"error": f"Користувач не існує"}, 404
+        
         return f(*args, **kwargs)
+    
     return _wrapper
 
 
@@ -117,22 +125,22 @@ def user_info_api(user_id):
     return jsonify(user_schema.dump(user)) # {"info": user.full_name()}, 200
     
    
-@post_urls.route('/api/v1/create-post/<user_id>', methods=['POST'])
+@post_urls.route('/api/v1/create-post', methods=['POST'])
 @login_required
-def create_post(user_id):
+def create_post():
     """Створення постів"""
+    author_id = g.user_id   
     data = request.json
     title = data['title']
     body = data['body']
-    created = data['created']	
-    author_id = None
+    created = data['created']
 
-    post = Post(title=title, body=body, created=datetime.datetime.utcnow(), author_id=user_id)
+    post = Post(author_id=author_id,title=title, body=body, created=datetime.datetime.utcnow())
     db.session.add(post)
     db.session.commit()
 
-    post_schema = PostSchema(many=True)
-
+    post_schema = PostSchema()
+    
     return jsonify(post_schema.dump(post)) 
     
     
@@ -171,7 +179,7 @@ def update_post(post_id, user_id):
 
     post_schema = PostSchema(many=True)
 
-    return jsonify(post_schema.dump(post)) # {"Status": "Updated"}, 200
+    return jsonify(post_schema.dump(post)) 
 
  
 @post_urls.route('/api/v1/<user_id>/posts', methods=['GET'])
@@ -262,7 +270,7 @@ def create_comment(user_id):
     db.session.add(new_comm)
     db.session.commit()
 
-    comment_schema = CommentsSchema(many=True)
+    comment_schema = CommentsSchema()
 
     return jsonify(comment_schema.dump(new_comm))
 

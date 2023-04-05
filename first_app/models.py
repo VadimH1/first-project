@@ -39,15 +39,14 @@ class Post(db.Model):
 	body = Column(String(100), nullable=False)
 	is_deleted = Column(Boolean(), default=False)
 	created = Column(DateTime, nullable=False, default=datetime.utcnow())
-	# image_id = Column(Integer, ForeignKey('upload.id'))
 	
 
-	def __init__(self, author_id=None, title=None, body=None, created=None, image_id=None):
+	def __init__(self, author_id=None, title=None, body=None, is_deleted=None, created=None):
 		self.author_id = author_id
 		self.title = title
 		self.body = body
+		self.is_deleted = is_deleted
 		self.created = datetime.utcnow()
-		self.image_id = image_id
 
 
 	def __repr__(self):
@@ -82,9 +81,10 @@ class Comments(db.Model):
 class Upload(db.Model):
 	__tablename__ = 'upload'
 	id = Column(Integer, primary_key=True)
+	url = Column(String(200))
 	# owner_id = Column(Integer, ForeignKey('user.id'), nullable=False)
 	# name = Column(String(50), nullable=False)
-	url = Column(String(200))	
+		
 
 	def __init__(self, url):
 		self.url = url
