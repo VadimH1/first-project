@@ -10,25 +10,30 @@
 <body>
     <div>
         <a href="/"><h2>Main Page</h2></a> 
-    </div>    
+    </div>  
+
     <h1 id="textPosts">Create Post</h1>
+    
     Title: <input type="text" name="titlePost" id="titlePost"><br><br>
-    Body Post: <input type="text" name="bodyPost" id="bodyPost" placeholder="Text"><br><br>
-    Created: <input type="text" name="createDate" id="createDate"><br><br>
-    <!-- <form action="/api/v1/create-post/<int:user_id>" method="POST"> -->
+    Body Post: <textarea type="text" name="bodyPost" id="bodyPost" cols="50" rows="5" placeholder="Text"></textarea><br><br>
+    <!-- Created: <input type="text" name="createDate" id="createDate"><br><br> -->
+
     <input type="button" name="sentPostButton" id="sentPostButton" value="Sent">
 
-    <!-- <p style="visibility: hidden;" id="errorRequiredFields">Required fields is empty</p>
-    <p style="visibility: hidden; color: brown;" id="emptyField">Text field is empty</p> -->
-    </form>
+    <p style="visibility: hidden; color: red" id="errorRequiredFields">Required fields is empty</p>
+
 <hr>
 </body>
 <script type="text/javascript">
     $("#sentPostButton").on('click', function() {
         var titlePost = $("#titlePost").val();
         var bodyPost = $("#bodyPost").val();
-        var createDate = $("#createDate").val();
-        var token = localStorage.getItem('token')
+        // var createDate = $("#createDate").val();
+        var token = localStorage.getItem('token');
+        if (titlePost === "" || bodyPost === "") {
+             $('#errorRequiredFields').css( "visibility", "visible" );
+             return
+        }
         $.ajax({
             url: "/api/v1/create-post",
             method: "POST",
@@ -37,12 +42,9 @@
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify({
                 title: titlePost,
-                body: bodyPost,
-                created: createDate
+                body: bodyPost
+                // created: createDate
             })
-            // error: function(request, status, error){
-            //     $("#emptyField").css( "visibility", "visible" )
-            // }
         })
     })
 </script>

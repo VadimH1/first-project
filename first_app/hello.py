@@ -47,6 +47,18 @@ def login_form():
 @hello_urls.route("/create-post", methods=['GET', 'POST'])
 def create_post_form():
     return render_template("create-post.html")
+
+@hello_urls.route("/create-comments", methods=['GET', 'POST'])
+def create_comments():
+    return render_template("create-comments.html")
+
+@hello_urls.route("/posts", methods=['GET', 'POST'])
+def all_posts():
+    return render_template("posts.html")
+
+@hello_urls.route("/post/<int:post_id>", methods=['GET', 'POST'])
+def user_post(post_id):
+    return render_template("post.html")
         
 
 @hello_urls.route("/api/v1/register-user", methods=['POST'])
@@ -133,9 +145,9 @@ def create_post():
     data = request.json
     title = data['title']
     body = data['body']
-    created = data['created']
+    created = datetime.datetime.utcnow()
 
-    post = Post(author_id=author_id,title=title, body=body, created=datetime.datetime.utcnow())
+    post = Post(author_id=author_id, title=title, body=body, created=datetime.datetime.utcnow())
     db.session.add(post)
     db.session.commit()
 
@@ -155,17 +167,18 @@ def delete_post(user_id):
     return {"Status": "Deleted post"}, 200
 
 
-@post_urls.route('/api/v1/update-post/<post_id>/<user_id>', methods=['PUT'])
+@post_urls.route('/api/v1/update-post/<post_id>', methods=['PUT'])
 @login_required
-def update_post(post_id, user_id):
+def update_post(post_id):
     """Оновлення постів"""
+    author_id = g.user_id
+
     data = request.json
     title = data['title']
     body = data['body']
-    created = data['created']	
-    author_id = None  # author_id = g.request.user_id
+    created = datetime.datetime.utcnow()	
 
-    post = Post.query.filter(Post.id == post_id, Post.author_id == user_id).first()
+    post = Post.query.filter(Post.id == post_id, Post.author_id == g.user_id).first()
     
     if not post:
         return {"Error": "post not found"}, 400
@@ -177,36 +190,29 @@ def update_post(post_id, user_id):
     db.session.add(post)
     db.session.commit()
 
-    post_schema = PostSchema(many=True)
+    post_schema = PostSchema()
 
     return jsonify(post_schema.dump(post)) 
 
  
-@post_urls.route('/api/v1/<user_id>/posts', methods=['GET'])
+@post_urls.route('/api/v1/posts', methods=['GET'])
 @login_required
-def get_user_post(user_id):
+def get_user_post():
     """Список постів юзера"""
-    user_post = []
-    post = Post.query.filter(Post.author_id==user_id).all()
-    # for i in post:
-    #     user_post.append({
-    #         "author_id": i.author_id,
-    #         "title": i.title,
-    #         "body": i.body,
-    #         "created": i.created
-    #     })
+    post = Post.query.filter(Post.author_id==g.user_id).all()
+   
     post_schema = PostSchema(many=True)
 
     return jsonify(post_schema.dump(post))
 
 
-@post_urls.route('/api/v1/<user_id>/post/<post_id>', methods=['GET'])
+@post_urls.route('/api/v1/post/<int:post_id>', methods=['GET'])
 @login_required
-def user_post(user_id, post_id):
+def user_post(post_id):
     """Виводимо пост користувача"""
-    post = Post.query.filter(Post.id == post_id, Post.author_id == user_id).first()
+    post = Post.query.filter(Post.id == post_id, Post.author_id == g.user_id).first()
     
-    user_post_schema = PostSchema(many=True)
+    user_post_schema = PostSchema()
 
     return jsonify(user_post_schema.dump(post))
 
@@ -250,21 +256,20 @@ def change_user_password(user_id):
     return jsonify(user_schema.dump(user))
 
 
-@comment_urls.route('/api/v1/create-comments/<user_id>', methods=['POST'])
+@comment_urls.route('/api/v1/create-comments/<int:post_id>', methods=['POST'])
 @login_required
-def create_comment(user_id):
+def create_comment(post_id):
     """Додавання нового коментаря"""
+    author_id = g.user_id
+    post_id = post_id
     data = request.json
-    author_id = None
-    post_id = None
     text = data['text']
-    created = data['created']
-    is_deleted = None
+    created = datetime.datetime.utcnow()
 
     new_comm = Comments(
         text=text,
-        created=datetime.datetime.utcnow(),
-        author_id=user_id, post_id=user_id
+        created=created,
+        author_id=author_id, post_id=post_id
     )
     
     db.session.add(new_comm)
