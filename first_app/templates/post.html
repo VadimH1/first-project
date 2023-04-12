@@ -17,6 +17,8 @@
 
 <div id="userPost" class="shadow p-3 mb-5 bg-body rounded" style="color:green"><h2> POST :</h2></div> 
 
+<div id="postCommentsList" class="shadow p-3 mb-5 bg-body rounded" style="color:green"><h2> Comments list :</h2></div> 
+
 <div id="commentPost" class="shadow p-3 mb-5 bg-body rounded" style="color:blueviolet"><ol><h5>Comment for post</h5></ol>
     Text: <textarea type="text" name="textComment" id="textComment" cols="50" rows="5" placeholder="comment text"></textarea><br><br>
     <input type="button" name="submitComment" id="submitComment" value="Submit Comment" class="btn btn-success"><br><br>  
@@ -34,7 +36,13 @@
             $("#userPost").append("<li><strong>Id:</strong> " + result.id + "</li>");
             $("#userPost").append("<li><strong>Title:</strong> " + result.title + "</li>");
             $("#userPost").append("<li><strong>Body:</strong> " + result.body + "</li>");
-            $("#userPost").append("<li><strong>Created:</strong> " + result.created + "</li>");    
+            $("#userPost").append("<li><strong>Created:</strong> " + result.created + "</li>");
+
+            let comments = result.comments;
+            $.each(comments, function( index, value ) {
+                $("#postCommentsList").append("<li><strong>Text:</strong> "+ value.text + "</li>");
+            });
+
         }
     })
 </script>
@@ -60,8 +68,7 @@
                 text: textComment
             }),
             success: function(data){
-                $("#commentPost").append("<li><strong>Text:</strong> " + data.text + "</li>");
-                $("#commentPost").append("<li><strong>Date:</strong> " + data.created + "</li>");
+                window.location.reload();
             }
         })
     })

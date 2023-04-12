@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey
 from .db import db
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
 
 class User(db.Model):
@@ -39,7 +40,8 @@ class Post(db.Model):
 	body = Column(String(100), nullable=False)
 	is_deleted = Column(Boolean(), default=False)
 	created = Column(DateTime, nullable=False, default=datetime.utcnow())
-	
+
+	comments = relationship("Comments", backref = "post")
 
 	def __init__(self, author_id=None, title=None, body=None, is_deleted=None, created=None):
 		self.author_id = author_id
