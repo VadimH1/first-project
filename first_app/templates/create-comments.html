@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <title>Create Comments</title>
+</head>
+<body>
+    <div>
+        <a href="/" button type="button" class="btn"> Main Page</a>
+    </div>
+    <h1>Create Comments</h1>
+
+    Text: <textarea type="text" name="textComment" id="textComment" cols="50" rows="5" placeholder="comment text"></textarea><br><br>
+    Created: <input type="text" name="createDate" id="createDate"><br><br>
+    <input type="button" name="submitComment" id="submitComment" value="Submit Comment"><br><br>  
+
+    <p style="visibility: hidden; color: red" id="errorRequiredFields">Required fields is empty</p>
+    <hr>
+    
+</body>
+<script type="text/javascript">
+    $("#submitComment").on('click',function() {
+        var token = localStorage.getItem('token');
+        var textComment = $("#textComment").val();
+        var createDate = $("#createDate").val();
+        if(textComment === ""){
+            $("#errorRequiredFields").css("visibility", "visible");
+            return
+        }
+        $.ajax({
+            url: `/api/v1/create-comments/${token}`,
+            method: "POST",
+            headers: {"Authorization": token},
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                text: textComment,
+                created: createDate
+            })
+            // success: function(data){
+            //     var url = `/${user_id}/posts`  // `/${user_id}/post/${post_id}`
+            //     $(location).attr('href', url) 
+            // }
+        })
+    })
+</script>
+</html>
