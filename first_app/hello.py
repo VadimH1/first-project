@@ -211,9 +211,7 @@ def get_user_post():
 def user_post(post_id):
     """Виводимо пост користувача"""
     post = Post.query.filter(Post.id == post_id, Post.author_id == g.user_id).first()
-    
     user_post_schema = PostSchema()
-
     return jsonify(user_post_schema.dump(post))
 
 
