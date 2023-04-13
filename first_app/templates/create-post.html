@@ -5,30 +5,78 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+
     <title>Create Post</title>
 </head>
+<style>
+    * {
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* Style the top navigation bar */
+    .topnav {
+    overflow: hidden;
+    background-color: #333;
+    }
+
+    /* Style the topnav links */
+    .topnav a {
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    }
+
+    /* Change color on hover */
+    .topnav a:hover {
+    background-color: #ddd;
+    color: black;
+    }
+
+    /* Style the content */
+    .content {
+    background-color: #ddd;
+    padding: 20px;
+    height: 1000px; 
+    }
+
+    /* Style the footer */
+    .footer {
+    background-color: #f1f1f1;
+    padding: 10px;
+    }
+</style>
 <body>
-    <div>
-        <a href="/"><h2>Main Page</h2></a> 
+    <div class="topnav">
+        <a href="/">Home</a>
     </div>  
 
-    <h1 id="textPosts">Create Post</h1>
-    
-    Title: <input type="text" name="titlePost" id="titlePost"><br><br>
-    Body Post: <textarea type="text" name="bodyPost" id="bodyPost" cols="50" rows="5" placeholder="Text"></textarea><br><br>
-    <!-- Created: <input type="text" name="createDate" id="createDate"><br><br> -->
+    <div style="text-align:center;" class="content">
+        <p>
+            <img src="https://cdn1.iconfinder.com/data/icons/space-flat-galaxy-radio/512/starship-256.png">
+        </p>
+        <h1 id="textPosts" style="text-align:center;">Create Post</h1>
+        Title: <input type="text" name="titlePost" id="titlePost"><br><br>
+        Post Text: <textarea type="text" name="bodyPost" id="bodyPost" cols="50" rows="5" placeholder="Text"></textarea><br><br>
 
-    <input type="button" name="sentPostButton" id="sentPostButton" value="Sent">
+        <input type="button" class="btn btn-outline-success" name="sentPostButton" id="sentPostButton" value="Sent">
 
-    <p style="visibility: hidden; color: red" id="errorRequiredFields">Required fields is empty</p>
-
-<hr>
+        <p style="visibility: hidden; color: red" id="errorRequiredFields">Required fields is empty</p>
+    </div>    
 </body>
 <script type="text/javascript">
     $("#sentPostButton").on('click', function() {
         var titlePost = $("#titlePost").val();
         var bodyPost = $("#bodyPost").val();
-        // var createDate = $("#createDate").val();
         var token = localStorage.getItem('token');
         if (titlePost === "" || bodyPost === "") {
              $('#errorRequiredFields').css( "visibility", "visible" );
@@ -43,7 +91,6 @@
             data: JSON.stringify({
                 title: titlePost,
                 body: bodyPost
-                // created: createDate
             })
         })
     })

@@ -1,33 +1,36 @@
 
 <!DOCTYPE html>
-<html>
-
+<html data-bs-theme="light">
 <head>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+  <title>Page Title</title>
+    <header class="p-3 text-bg-dark">
+      <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+          <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+            <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+          </a>
 
+          <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+            <li><a href="/create-post" style="visibility: hidden;" id="createPostLink" class="nav-link px-2 text-white">Create Post</a></li>
+            <!-- <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li> -->
+            <li><a href="#" id="logoutButton" name="logoutButton" class="nav-link px-2 text-white">Logout</a></li>
+          </ul>
+
+          <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+            <input type="search" class="form-control form-control-dark text-bg-dark" placeholder="Search..." aria-label="Search">
+          </form>
+
+          <div class="text-end">
+            <a href="/login" style="visibility: visible;" id="loginPageLink" type="button" class="btn btn-outline-light me-2">Login</a>
+            <a href="/register" style="visibility: visible;" id="registerPageLink" type="button" class="btn btn-warning">Sign-up</a>
+          </div>
+        </div>
+      </div>
+    </header>
 </head>
 
-<body>
-  <img src="https://cdn1.iconfinder.com/data/icons/space-flat-galaxy-radio/512/laser_gun-256.png" alt="">
-
-  
-    <form action="/" method="POST">
-        <label for="fname">First name:</label><br>
-        <input type="text" id="fname" name="fname"><br>
-        <label for="lname">Last name:</label><br>
-        <input type="text" id="lname" name="lname"><br><br>
-        <input type="submit" value="Submit"><br><br>
-    </form> 
-    {% if income_form_data %}
-        <h1>{{income_form_data.fname}}</h1><h1>{{income_form_data.lname}}</h1>
-    {% endif %}
-
-<hr>  
-  <!-- Username <input type="text" name="username"><br><br> -->
-  <input type="button" id="logoutButton" name="logoutButton" class="btn btn-danger" value="Logout"><br>
-
-</body>
-</html>
 
 <!-- <html>
   <head>
@@ -41,30 +44,18 @@
     </form>
   </body>
 </html> -->
-
-
-<html>
-<head>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-    <title>Page Title</title>
-</head>
-
+<style>
+  body {background-color: powderblue;}
+</style> 
 <body>
-  
-<hr>
+  <div style="text-align:center;">
+    <img src="https://cdn1.iconfinder.com/data/icons/space-flat-galaxy-radio/512/moon_flag-256.png" alt=""> 
+  </div>
 
-    <div>
-        <a href="/login" style="visibility: visible;" id="loginPageLink"><h1>Login Page</h1></a><br>
-      <hr>  
-        <a href="/register" style="visibility: visible;" id="registerPageLink"><h1>Register page</h1></a><br>
-      <hr>  
-        <a href="/create-post" style="visibility: hidden;" id="createPostLink"><h1>Create Post</h1></a>
-      <hr>
-        <a href="/create-comments" style="visibility: hidden;" id="createCommentLink"><h1>Create Comments</h1></a> 
-      <hr>
-        <a href="/posts" style="visibility: hidden;" id="allPostsLink"><h1>Posts</h1></a> 
-    </div>
-
+  <div id="allPosts" style="text-align:center;">
+    <h2>Blog Posts</h2>
+  </div>   
+ 
 </body>
 
 <script type="text/javascript">
@@ -75,6 +66,7 @@
         $("#createPostLink").css("visibility", "visible");
         $("#createCommentLink").css("visibility", "visible");
         $("#allPostsLink").css("visibility", "visible");
+        $("#logoutButton").css("visibility", "visible");
     }
     $('#logoutButton').on('click', function(){
       localStorage.removeItem('token');
@@ -83,27 +75,23 @@
     });
 </script>
 
-<div id="allPosts" class="shadow p-3 mb-5 bg-body rounded"><h2>Blog Posts :</h2></div>   
-    <script>
-        var token = localStorage.getItem('token');
-        $.ajax({
-            url: "/api/v1/posts",
-            method: "GET",
-            headers: {"Authorization": token},
-            success: function(result) {
-              // for (var value in result) {
-              //   $("#allPosts").append(`<a href="/posts/${value.id}"> ${value.title}</a>`) //(`${value}: ${result[value]}`);//$("#allPosts").append;
-              //   } 
-              $.each(result, function( index, value ) {
-                $("#allPosts").append('<li>Id: ' + value.id + ' - Title: ' + value.title + ' - Body: ' + value.body + '</li>');
-                $("#allPosts").append(`<a href="/post/${value.id}" class="btn btn-primary btn-sm">Post</a><br><br>`);
-              })    
-            },
-            error: function(msg) {
-              console.error(msg);
-            } 
-        })
-    </script>      
+<script>
+    var token = localStorage.getItem('token');
+    $.ajax({
+        url: "/api/v1/posts",
+        method: "GET",
+        headers: {"Authorization": token},
+        success: function(result) { 
+          $.each(result, function( index, value ) {
+            $("#allPosts").append('<li>Id: ' + value.id + '<br>Title: ' + value.title + '<br>Body: ' + value.body + '</li>');
+            $("#allPosts").append(`<a href="/post/${value.id}" class="btn btn-primary btn-sm">Post</a><br><br>`);
+          })    
+        },
+        error: function(msg) {
+          console.error(msg);
+        } 
+    })
+</script>      
 <!-- <script type="text/javascript">
     $( "#changeTextInput" ).on('input', function() {
     console.log(this);
