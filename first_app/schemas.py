@@ -16,6 +16,9 @@ class CommentsSchema(Schema):
     created = fields.DateTime()
     is_deleted = fields.Boolean()
 
+class UploadSchema(Schema):
+    id = fields.Integer(dump_only=True)    
+    url = fields.String(required=True, validate=[validate.Length(max=200)])
 
 class PostSchema(Schema):
     id = fields.Integer(dump_only=True)
@@ -23,11 +26,10 @@ class PostSchema(Schema):
     title = fields.String(required=True, validate=[validate.Length(max=100)])
     body = fields.String(required=True, validate=[validate.Length(max=100)])
     is_deleted = fields.Boolean()
-    comments = fields.Nested(
-        CommentsSchema, many=True
-    )
+    image_id = fields.Integer(required=True)
+    comments = fields.Nested(CommentsSchema, many=True)
+    files = fields.Nested(UploadSchema)
     created = fields.DateTime()
 
-class UploadSchema(Schema):
-    id = fields.Integer(dump_only=True)    
-    url = fields.String(required=True, validate=[validate.Length(max=200)])
+
+    

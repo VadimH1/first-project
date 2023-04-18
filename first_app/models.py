@@ -30,7 +30,19 @@ class User(db.Model):
 
 	def full_name(self):
 		return f'{self.first_name} {self.second_name}'
+
+
+class Upload(db.Model):
+	__tablename__ = 'upload'
+	id = Column(Integer, primary_key=True)
+	url = Column(String(200))
+	# post_id = Column(Integer, ForeignKey('post.id'))
+	post = relationship("Post", back_populates="files")
 		
+
+	def __init__(self, url=None):
+		self.url = url
+				
 
 class Post(db.Model):
 	__tablename__ = 'post'
@@ -40,14 +52,17 @@ class Post(db.Model):
 	body = Column(String(100), nullable=False)
 	is_deleted = Column(Boolean(), default=False)
 	created = Column(DateTime, nullable=False, default=datetime.utcnow())
+	image_id = Column(Integer, ForeignKey('upload.id'))
 
 	comments = relationship("Comments", backref = "post")
+	files = relationship("Upload", back_populates="post", primaryjoin=Upload.id==image_id)
 
-	def __init__(self, author_id=None, title=None, body=None, is_deleted=None, created=None):
+	def __init__(self, author_id=None, title=None, body=None, is_deleted=None, created=None, image_id=None):
 		self.author_id = author_id
 		self.title = title
 		self.body = body
 		self.is_deleted = is_deleted
+		self.image_id = image_id
 		self.created = datetime.utcnow()
 
 
@@ -64,29 +79,17 @@ class Comments(db.Model):
 	created = Column(DateTime, nullable=False, default=datetime.utcnow())
 	is_deleted = Column(Boolean(), default=False)
 
-	def __init__(self, author_id=None, post_id=None, text=None, created=None):
+	def __init__(self, author_id=None, post_id=None, text=None, created=None, is_deleted=None):
 		self.author_id = author_id
 		self.post_id = post_id
 		self.text = text
+		self.is_deleted = is_deleted
 		self.created = datetime.utcnow()
 
-	# def __init__(self, *args, **kwargs) -> None:
-	# 	super(Comments, self).__init__(self, *args, **kwargs)
 
 	def __repr__(self):
 		return f'Comments({self.author_id}, {self.text}, {self.created})'	
 
-	# def __repr__(self):
-	# 	return f'{self.__class__}: {self.text}", {self.created}'
 
 
-class Upload(db.Model):
-	__tablename__ = 'upload'
-	id = Column(Integer, primary_key=True)
-	url = Column(String(200))
-	# owner_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-	# name = Column(String(50), nullable=False)
-		
-
-	def __init__(self, url):
-		self.url = url
+	

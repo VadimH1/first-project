@@ -82,7 +82,7 @@ def user_info_api(user_id):
     if not user:
         return {"Неверный логин или пароль"}, 400
     
-    user_schema = UserSchema(many=True)
+    user_schema = UserSchema()
     
     return jsonify(user_schema.dump(user))
 
@@ -103,7 +103,7 @@ def edit_user_info(user_id):
     db.session.add(new_info)
     db.session.commit()
 
-    user_schema = UserSchema(many=True)
+    user_schema = UserSchema()
     
     return jsonify(user_schema.dump(new_info))
 
@@ -121,6 +121,6 @@ def change_user_password(user_id):
 
     db.session.commit()
 
-    user_schema = UserSchema(many=True)
+    user_schema = UserSchema()
 
     return jsonify(user_schema.dump(user))

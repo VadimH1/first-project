@@ -38,20 +38,20 @@
 
     /* Change color on hover */
     .topnav a:hover {
-    background-color: #ddd;
+    background-color: powderblue;
     color: black;
     }
 
     /* Style the content */
     .content {
-    background-color: #ddd;
+    background-color: powderblue;
     padding: 20px;
     height: 1000px; 
     }
 
     /* Style the footer */
     .footer {
-    background-color: #f1f1f1;
+    background-color: powderblue;
     padding: 10px;
     }
 </style>
@@ -65,34 +65,135 @@
             <img src="https://cdn1.iconfinder.com/data/icons/space-flat-galaxy-radio/512/starship-256.png">
         </p>
         <h1 id="textPosts" style="text-align:center;">Create Post</h1>
-        Title: <input type="text" name="titlePost" id="titlePost"><br><br>
-        Post Text: <textarea type="text" name="bodyPost" id="bodyPost" cols="50" rows="5" placeholder="Text"></textarea><br><br>
-
+        <input type="text" name="titlePost" id="titlePost" placeholder="Title"><br><br>
+        <textarea type="text" name="bodyPost" id="bodyPost" cols="50" rows="5" placeholder="Text"></textarea><br><br>
+        <!-- <div style = "display: none">
+            <p style="font-size: 14px;">Uploading your attached file</p>
+        </div> -->
+        <!-- <input type="file" name="images" id="images" enctype="multipart/form-data"><br><br>  -->
+        <input type="file" id="file" name="file"><br><br>
         <input type="button" class="btn btn-outline-success" name="sentPostButton" id="sentPostButton" value="Sent">
+        <!-- <form id="images" enctype="multipart/form-data">
+            <input type="file" id="file" name="file">
+            <input id="images-button" type="button" value="Upload">
+        </form> -->
 
         <p style="visibility: hidden; color: red" id="errorRequiredFields">Required fields is empty</p>
     </div>    
 </body>
 <script type="text/javascript">
-    $("#sentPostButton").on('click', function() {
-        var titlePost = $("#titlePost").val();
-        var bodyPost = $("#bodyPost").val();
-        var token = localStorage.getItem('token');
-        if (titlePost === "" || bodyPost === "") {
-             $('#errorRequiredFields').css( "visibility", "visible" );
-             return
-        }
-        $.ajax({
-            url: "/api/v1/create-post",
-            method: "POST",
-            headers: {"Authorization": token},
-            dataType: "json",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                title: titlePost,
-                body: bodyPost
-            })
+    // $("#sentPostButton").on('click', function() {
+    //     var titlePost = $("#titlePost").val();
+    //     var bodyPost = $("#bodyPost").val();
+    //     var token = localStorage.getItem('token');
+    //     if (titlePost === "" || bodyPost === "") {
+    //          $('#errorRequiredFields').css( "visibility", "visible" );
+    //          return
+    //     }
+    //     $.ajax({
+    //         url: "/api/v1/create-post",
+    //         method: "POST",
+    //         headers: {"Authorization": token},
+    //         dataType: "json",
+    //         contentType: "application/json; charset=utf-8",
+    //         data: JSON.stringify({
+    //             title: titlePost,
+    //             body: bodyPost
+    //         })
+    //     })
+    // })
+</script>
+<!-- <script type="text/javascript">
+    $(document).ready( function(e) {
+        $("#sentPostButton").on('click', function(e) {
+            // e.preventDefault();
+            var token = localStorage.getItem('token');
+            var formData = new FormData();
+            formData.append('file', files[0]);
+            $.ajax ({
+                url: '/api/v1/upload-files',
+                method: "POST",
+                data: formData,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    console.log('success');
+                    console.log(data);
+                },
+                error: function(data) {
+                    console.log('error');
+                    console.log(data);
+                }
+            }) 
         })
     })
+</script> -->
+
+<script type="text/javascript">
+            var imageId;
+    // $("#images-button").click(function() {
+        $("#sentPostButton").on('click', function() {
+            var titlePost = $("#titlePost").val();
+            var bodyPost = $("#bodyPost").val();
+            var formData = new FormData();
+            var file = $('#file')[0].files[0];
+            formData.append('file', file);
+            var token = localStorage.getItem('token');
+            if (titlePost === "" || bodyPost === "") {
+                $('#errorRequiredFields').css( "visibility", "visible" );
+                return
+            }
+            if (!file) {
+                $.ajax({
+                        url: "/api/v1/create-post",
+                        method: "POST",
+                        headers: {"Authorization": token},
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            title: titlePost,
+                            body: bodyPost,
+                            image_id: null
+                        }),
+                        success: function(data) {
+                            alert('Post created without file');
+                            var url = "/";
+                            $(location).attr('href', url);
+                        }
+                    })
+            };
+
+            $.ajax({
+                url: '/api/v1/upload-files',
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(data) {
+                    if (data != 0) {
+                        console.log('Successful file upload to: ' + data.id);
+                    }
+                    else{
+                        console.log('File upload error');
+                    }
+                    imageId = data.id;
+                    $.ajax({
+                        url: "/api/v1/create-post",
+                        method: "POST",
+                        headers: {"Authorization": token},
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            title: titlePost,
+                            body: bodyPost,
+                            image_id: imageId
+                        })
+                    })
+                }
+            })        
+        })        
+    
+
 </script>
 </html>

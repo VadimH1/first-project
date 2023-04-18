@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html data-bs-theme="light">
 <head>
+  <!-- <link rel="stylesheet" href="{{url_for('static', filename='UploadFile/FileUpload.png')}}"> -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
   <title>Page Title</title>
@@ -14,7 +15,6 @@
 
           <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
             <li><a href="/create-post" style="visibility: hidden;" id="createPostLink" class="nav-link px-2 text-white">Create Post</a></li>
-            <!-- <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li> -->
             <li><a href="#" id="logoutButton" name="logoutButton" class="nav-link px-2 text-white">Logout</a></li>
           </ul>
 
@@ -83,8 +83,10 @@
         headers: {"Authorization": token},
         success: function(result) { 
           $.each(result, function( index, value ) {
-            $("#allPosts").append('<li>Id: ' + value.id + '<br>Title: ' + value.title + '<br>Body: ' + value.body + '</li>');
+            console.log(value.url);
+            $("#allPosts").append(`<img src="static/UploadFile/${value.url}">` + '<br><strong><h4>Title: </strong></h4>' + value.title + '<br><strong><h4>Body: </strong></h4>' + value.body + "<br>" + "<br>");
             $("#allPosts").append(`<a href="/post/${value.id}" class="btn btn-primary btn-sm">Post</a><br><br>`);
+
           })    
         },
         error: function(msg) {

@@ -26,3 +26,17 @@ def upload_files():
 
     upload_schema = UploadSchema()
     return jsonify(upload_schema.dump(upload))
+
+
+@upload_urls.route('/api/v1/delete-file/<int:image_id>', methods=['DELETE'])
+def delete_file(image_id):
+
+    image = Upload.query.filter(Upload.id==image_id).one_or_none()
+
+    if not image:
+        return {"Error": "File not found"}, 400
+    
+    db.session.delete(image)
+    db.session.commit()
+
+    return {"Status": "File deleted"}, 200
