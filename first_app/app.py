@@ -10,6 +10,7 @@ from views.registration import register_urls
 from views.post import post
 from views.update_post import update_post
 from views.update_comment import update_comment
+from views.user_info import info_user
 from api_app.user_api import hello_urls
 from api_app.upload_api import upload_urls
 from api_app.post_api import post_urls
@@ -54,6 +55,7 @@ def create_app(test_config=None):
     app.register_blueprint(create_post)
     app.register_blueprint(update_post)
     app.register_blueprint(update_comment)
+    app.register_blueprint(info_user)
 
     return app
 

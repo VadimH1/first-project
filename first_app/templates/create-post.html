@@ -146,22 +146,22 @@
             }
             if (!file) {
                 $.ajax({
-                        url: "/api/v1/create-post",
-                        method: "POST",
-                        headers: {"Authorization": token},
-                        dataType: "json",
-                        contentType: "application/json; charset=utf-8",
-                        data: JSON.stringify({
-                            title: titlePost,
-                            body: bodyPost,
-                            image_id: null
-                        }),
-                        success: function(data) {
-                            alert('Post created without file');
-                            var url = "/";
-                            $(location).attr('href', url);
-                        }
-                    })
+                    url: "/api/v1/create-post",
+                    method: "POST",
+                    headers: {"Authorization": token},
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        title: titlePost,
+                        body: bodyPost,
+                        image_id: null
+                    }),
+                    success: function(data) {
+                        alert('Post created without file');
+                        var url = "/";
+                        $(location).attr('href', url);
+                    }
+                })
             };
 
             $.ajax({

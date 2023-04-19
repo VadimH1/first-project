@@ -105,8 +105,6 @@
             let comments = result.comments;
             $.each(comments, function( index, value ) {
                 $("#postCommentsList").append(`<li><strong><a href="/update/comment/${value.id}">${value.text}</a><strong></li><br><br>`);
-
-                // $("#postCommentsList").append("<li><strong>Text:</strong> "+ value.text + "</li>");
             });
         }
     })

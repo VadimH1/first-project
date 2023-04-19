@@ -74,10 +74,12 @@ def login_api():
     return {"access_token": access_token}, 200    
 
 
-@hello_urls.route("/api/v1/user-info/<user_id>", methods=['GET'])
+@hello_urls.route("/api/v1/user-info", methods=['GET'])
 @login_required
-def user_info_api(user_id):
-    user = User.query.filter(User.id == user_id).first()
+def user_info_api():
+    # author_id = g.user_id
+
+    user = User.query.filter(User.id == g.user_id).first()
     
     if not user:
         return {"Неверный логин или пароль"}, 400
@@ -87,25 +89,27 @@ def user_info_api(user_id):
     return jsonify(user_schema.dump(user))
 
 
-@hello_urls.route('/api/v1/edit-user-info/<user_id>', methods=['PUT'])
+@hello_urls.route('/api/v1/edit-user-info', methods=['PUT'])
 @login_required
-def edit_user_info(user_id):
+def edit_user_info():
     data = request.json
     _phone_number = data['phone_number']
     _first_name = data['first_name']
     _second_name = data['second_name']
-    _password = data['password']
+    # _password = data['password']
 
-    user_info = User.query.filter(User.id==user_id).first()
+    user_info = User.query.filter(User.id==g.user_id).first()
     
-    new_info = User(phone_number=_phone_number, first_name=_first_name, second_name=_second_name, password=_password)
-
-    db.session.add(new_info)
+    # new_info = User(phone_number=_phone_number, first_name=_first_name, second_name=_second_name) #password=_password)
+    user_info.phone_number=_phone_number
+    user_info.first_name=_first_name
+    user_info.second_name=_second_name
+    # db.session.add(new_info)
     db.session.commit()
 
     user_schema = UserSchema()
     
-    return jsonify(user_schema.dump(new_info))
+    return jsonify(user_schema.dump(user_info))
 
 
 @hello_urls.route('/api/vi/change-user-password/<user_id>', methods=['PUT'])

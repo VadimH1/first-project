@@ -111,8 +111,14 @@ $(document).ready(function(){
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify({
                 title: updateTitle,
-                body: updateBody
-            })
+                body: updateBody,
+                image_id: null
+            }),
+            success: function() {
+                alert('Post has been changed');
+                var url = "/";
+                $(location).attr('href', url);
+            }
         })
     })
 </script>
