@@ -57,7 +57,10 @@
 </style>
 <body>
     <div class="topnav">
-        <a href="/">Home</a>
+        <a href="/"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-fill" viewBox="0 0 16 16">
+            <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5Z"/>
+            <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293l6-6Z"/>
+          </svg>  Home</a>
     </div>  
 
     <div style="text-align:center;" class="content">
@@ -67,11 +70,11 @@
         <h1 id="textPosts" style="text-align:center;">Create Post</h1>
         <input type="text" name="titlePost" id="titlePost" placeholder="Title"><br><br>
         <textarea type="text" name="bodyPost" id="bodyPost" cols="50" rows="5" placeholder="Text"></textarea><br><br>
-        <!-- <div style = "display: none">
-            <p style="font-size: 14px;">Uploading your attached file</p>
-        </div> -->
-        <!-- <input type="file" name="images" id="images" enctype="multipart/form-data"><br><br>  -->
-        <input type="file" id="file" name="file"><br><br>
+
+        <!-- <input type="file" id="file" name="file"><br><br> -->
+        <form id="images" enctype="multipart/form-data">
+            <input type="file" id="file" name="file">
+        </form><br>
         <input type="button" class="btn btn-outline-success" name="sentPostButton" id="sentPostButton" value="Sent">
         <!-- <form id="images" enctype="multipart/form-data">
             <input type="file" id="file" name="file">
@@ -81,6 +84,71 @@
         <p style="visibility: hidden; color: red" id="errorRequiredFields">Required fields is empty</p>
     </div>    
 </body>
+<script type="text/javascript">
+    var imageId;
+$("#sentPostButton").on('click', function() {
+    var titlePost = $("#titlePost").val();
+    var bodyPost = $("#bodyPost").val();
+    var formData = new FormData();
+    var file = $('#file')[0].files[0];
+    formData.append('file', file);
+    var token = localStorage.getItem('token');
+    if (titlePost === "" || bodyPost === "") {
+        $('#errorRequiredFields').css( "visibility", "visible" );
+        return
+    }
+    if (!file) {
+        $.ajax({
+            url: "/api/v1/create-post",
+            method: "POST",
+            headers: {"Authorization": token},
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                title: titlePost,
+                body: bodyPost,
+                image_id: null
+            }),
+            success: function(data) {
+                alert('Post created without file');
+                var url = "/";
+                $(location).attr('href', url);
+            }
+        })
+    };
+    $.ajax({
+        url: '/api/v1/upload-files',
+        method: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function() {
+            // if (data != 0) {
+            //     console.log('Successful file upload to: ' + data.id);
+            // }
+            // else{
+            //     console.log('File upload error');
+            // }
+            imageId = data.id;
+            $.ajax({
+                url: "/api/v1/create-post",
+                method: "POST",
+                headers: {"Authorization": token},
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    title: titlePost,
+                    body: bodyPost,
+                    image_id: imageId
+                })
+            })
+        }
+    })        
+})        
+</script>
+
+
+
 <script type="text/javascript">
     // $("#sentPostButton").on('click', function() {
     //     var titlePost = $("#titlePost").val();
@@ -130,70 +198,4 @@
     })
 </script> -->
 
-<script type="text/javascript">
-            var imageId;
-    // $("#images-button").click(function() {
-        $("#sentPostButton").on('click', function() {
-            var titlePost = $("#titlePost").val();
-            var bodyPost = $("#bodyPost").val();
-            var formData = new FormData();
-            var file = $('#file')[0].files[0];
-            formData.append('file', file);
-            var token = localStorage.getItem('token');
-            if (titlePost === "" || bodyPost === "") {
-                $('#errorRequiredFields').css( "visibility", "visible" );
-                return
-            }
-            if (!file) {
-                $.ajax({
-                    url: "/api/v1/create-post",
-                    method: "POST",
-                    headers: {"Authorization": token},
-                    dataType: "json",
-                    contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify({
-                        title: titlePost,
-                        body: bodyPost,
-                        image_id: null
-                    }),
-                    success: function(data) {
-                        alert('Post created without file');
-                        var url = "/";
-                        $(location).attr('href', url);
-                    }
-                })
-            };
 
-            $.ajax({
-                url: '/api/v1/upload-files',
-                method: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function(data) {
-                    if (data != 0) {
-                        console.log('Successful file upload to: ' + data.id);
-                    }
-                    else{
-                        console.log('File upload error');
-                    }
-                    imageId = data.id;
-                    $.ajax({
-                        url: "/api/v1/create-post",
-                        method: "POST",
-                        headers: {"Authorization": token},
-                        dataType: "json",
-                        contentType: "application/json; charset=utf-8",
-                        data: JSON.stringify({
-                            title: titlePost,
-                            body: bodyPost,
-                            image_id: imageId
-                        })
-                    })
-                }
-            })        
-        })        
-    
-
-</script>
-</html>

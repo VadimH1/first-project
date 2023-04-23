@@ -2,7 +2,6 @@
 <!DOCTYPE html>
 <html data-bs-theme="light">
 <head>
-  <!-- <link rel="stylesheet" href="{{url_for('static', filename='UploadFile/FileUpload.png')}}"> -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
   <title>Page Title</title>
@@ -14,8 +13,16 @@
           </a>
 
           <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-            <li><a href="/create-post" style="visibility: hidden;" id="createPostLink" class="nav-link px-2 text-white">Create Post</a></li>
-            <li><a href="#" id="logoutButton" name="logoutButton" class="nav-link px-2 text-white">Logout</a></li>
+
+            <li><a href="/create-post" style="visibility: hidden;" id="createPostLink" class="nav-link px-2 text-white"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-post-fill" viewBox="0 0 16 16">
+              <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-5-.5H7a.5.5 0 0 1 0 1H4.5a.5.5 0 0 1 0-1zm0 3h7a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-7a.5.5 0 0 1 .5-.5z"/>
+            </svg>  Create Post</a></li>
+
+            <li><a href="#" id="logoutButton" name="logoutButton" class="nav-link px-2 text-white"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+              <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+            </svg>  Logout</a></li>
+
           </ul>
 
           <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
@@ -23,34 +30,34 @@
           </form>
 
           <div class="text-end">
-            <a href="/login" style="visibility: visible;" id="loginPageLink" type="button" class="btn btn-outline-light me-2">Login</a>
-            <a href="/register" style="visibility: visible;" id="registerPageLink" type="button" class="btn btn-warning">Sign-up</a>
-            <a href ="/user-info" style="visibility: visible;" id="user-infoPage" type="button" class="btn btn-outline-light me-2">User Info</a>
+
+            <a href="/login" style="visibility: visible;" id="loginPageLink" type="button" class="btn btn-outline-light me-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"/>
+              <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+            </svg>  Login</a>
+
+            <a href="/register" style="visibility: visible;" id="registerPageLink" type="button" class="btn btn-warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-door-closed" viewBox="0 0 16 16">
+              <path d="M3 2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V2zm1 13h8V2H4v13z"/>
+              <path d="M9 9a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"/>
+            </svg>  Sign-up</a>
+
+            <a href ="/user-info" style="visibility: hidden;" id="userInfoPage" type="button" class="btn btn-outline-light me-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-vcard" viewBox="0 0 16 16">
+              <path d="M5 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm4-2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5ZM9 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 9 8Zm1 2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5Z"/>
+              <path d="M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2ZM1 4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H8.96c.026-.163.04-.33.04-.5C9 10.567 7.21 9 5 9c-2.086 0-3.8 1.398-3.984 3.181A1.006 1.006 0 0 1 1 12V4Z"/>
+            </svg>  User Info</a>
+
           </div>
         </div>
       </div>
     </header>
 </head>
 
-
-<!-- <html>
-  <head>
-    <title>File Upload</title>
-  </head>
-  <body>
-    <h1>File Upload</h1>
-    <form method="POST" action="" enctype="multipart/form-data">
-      <p><input type="file" name="file"></p>
-      <p><input type="submit" value="Submit"></p>
-    </form>
-  </body>
-</html> -->
 <style>
   body {background-color: powderblue;}
 </style> 
 <body>
   <div style="text-align:center;">
-    <img src="https://cdn1.iconfinder.com/data/icons/space-flat-galaxy-radio/512/moon_flag-256.png" alt=""> 
+    <img src="https://cdn2.iconfinder.com/data/icons/travel-481/4000/Tourist_car-512.png" alt=""> 
   </div>
 
   <div id="allPosts" style="text-align:center;">
@@ -68,6 +75,7 @@
         $("#createCommentLink").css("visibility", "visible");
         $("#allPostsLink").css("visibility", "visible");
         $("#logoutButton").css("visibility", "visible");
+        $("#userInfoPage").css("visibility", "visible");
     }
     $('#logoutButton').on('click', function(){
       localStorage.removeItem('token');
@@ -84,10 +92,9 @@
         headers: {"Authorization": token},
         success: function(result) { 
           $.each(result, function( index, value ) {
-            console.log(value.url);
-            $("#allPosts").append(`<img src="static/UploadFile/${value.url}">` + '<br><strong><h4>Title: </strong></h4>' + value.title + '<br><strong><h4>Body: </strong></h4>' + value.body + "<br>" + "<br>");
+            // $("#allPosts").append(`<img src="static/UploadFile/${value.file_url}"><br>`);
+            $("#allPosts").append("<br><strong><h4>" + value.title + "</strong></h4>" + value.body + "<br>");
             $("#allPosts").append(`<a href="/post/${value.id}" class="btn btn-primary btn-sm">Post</a><br><br>`);
-
           })    
         },
         error: function(msg) {

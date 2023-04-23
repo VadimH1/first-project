@@ -62,9 +62,9 @@ def login_api():
     income_password = data.get("password") # Данні з запиту
 
     if not income_phone_number or not income_password:
-        return "", 401
+        return {"Error": "Does not exist phone_number or password"}, 401
         
-    user = User.query.filter(User.phone_number == income_phone_number).one()
+    user = User.query.filter(User.phone_number == income_phone_number).first()
     
     if not user:
         return {"error": f"Користувач не існує з телефоном {income_phone_number}"}, 404
@@ -104,7 +104,7 @@ def edit_user_info():
     user_info.phone_number=_phone_number
     user_info.first_name=_first_name
     user_info.second_name=_second_name
-    # db.session.add(new_info)
+
     db.session.commit()
 
     user_schema = UserSchema()
@@ -112,16 +112,16 @@ def edit_user_info():
     return jsonify(user_schema.dump(user_info))
 
 
-@hello_urls.route('/api/vi/change-user-password/<user_id>', methods=['PUT'])
+@hello_urls.route('/api/vi/change-user-password', methods=['PUT'])
 @login_required
-def change_user_password(user_id):
+def change_user_password():
     data = request.json
     old_password = data['old_password']
     new_password = data['new_password']         
 
-    user = User.query.filter(User.id == user_id).first()
+    user = User.query.filter(User.id == g.user_id).first()
 
-    user.password = generate_password_hash(new_password, method='sha256')
+    user.password = generate_password_hash(new_password)
 
     db.session.commit()
 

@@ -30,6 +30,7 @@ class PostSchema(Schema):
     comments = fields.Nested(CommentsSchema, many=True)
     files = fields.Nested(UploadSchema)
     created = fields.DateTime()
+    file_url = fields.String(data_key="file.url")
 
 
     

@@ -37,7 +37,7 @@ class Upload(db.Model):
 	id = Column(Integer, primary_key=True)
 	url = Column(String(200))
 	# post_id = Column(Integer, ForeignKey('post.id'))
-	post = relationship("Post", back_populates="files")
+	post = relationship("Post", back_populates="file", single_parent=True)
 		
 
 	def __init__(self, url=None):
@@ -55,7 +55,7 @@ class Post(db.Model):
 	image_id = Column(Integer, ForeignKey('upload.id'))
 
 	comments = relationship("Comments", backref = "post")
-	files = relationship("Upload", back_populates="post", primaryjoin=Upload.id==image_id)
+	file = relationship("Upload", back_populates="post", primaryjoin=Upload.id==image_id)
 
 	def __init__(self, author_id=None, title=None, body=None, is_deleted=None, created=None, image_id=None):
 		self.author_id = author_id

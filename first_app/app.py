@@ -11,6 +11,8 @@ from views.post import post
 from views.update_post import update_post
 from views.update_comment import update_comment
 from views.user_info import info_user
+from views.edit_user_info import edit_user_info
+from views.change_password import change_password
 from api_app.user_api import hello_urls
 from api_app.upload_api import upload_urls
 from api_app.post_api import post_urls
@@ -21,7 +23,7 @@ UPLOAD_FOLDER = os.path.join(basedir,'static/UploadFile')
 
 
 def create_app(test_config=None):
-    app = Flask(__name__, template_folder='templates', static_folder='static', instance_relative_config=True)
+    app = Flask(__name__, template_folder='templates', instance_relative_config=True)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///'+os.path.join(basedir,'data.sqlite')
     app.config.from_mapping(
         SECRET_KEY = 'dev'
@@ -56,6 +58,8 @@ def create_app(test_config=None):
     app.register_blueprint(update_post)
     app.register_blueprint(update_comment)
     app.register_blueprint(info_user)
+    app.register_blueprint(edit_user_info)
+    app.register_blueprint(change_password)
 
     return app
 
