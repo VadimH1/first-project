@@ -1,72 +1,69 @@
 
 <!DOCTYPE html>
-<html>
-
+<html data-bs-theme="light">
 <head>
-    <title>My first app</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+  <title>Page Title</title>
+    <header class="p-3 text-bg-dark">
+      <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+          <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+            <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+          </a>
+
+          <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+
+            <li><a href="/create-post" style="visibility: hidden;" id="createPostLink" class="nav-link px-2 text-white"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-post-fill" viewBox="0 0 16 16">
+              <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zm-5-.5H7a.5.5 0 0 1 0 1H4.5a.5.5 0 0 1 0-1zm0 3h7a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-7a.5.5 0 0 1 .5-.5z"/>
+            </svg>  Create Post</a></li>
+
+            <li><a href="#" id="logoutButton" name="logoutButton" class="nav-link px-2 text-white"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
+              <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+            </svg>  Logout</a></li>
+
+          </ul>
+
+          <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+            <input type="search" class="form-control form-control-dark text-bg-dark" placeholder="Search..." aria-label="Search">
+          </form>
+
+          <div class="text-end">
+
+            <a href="/login" style="visibility: visible;" id="loginPageLink" type="button" class="btn btn-outline-light me-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"/>
+              <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
+            </svg>  Login</a>
+
+            <a href="/register" style="visibility: visible;" id="registerPageLink" type="button" class="btn btn-warning"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-door-closed" viewBox="0 0 16 16">
+              <path d="M3 2a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v13h1.5a.5.5 0 0 1 0 1h-13a.5.5 0 0 1 0-1H3V2zm1 13h8V2H4v13z"/>
+              <path d="M9 9a1 1 0 1 0 2 0 1 1 0 0 0-2 0z"/>
+            </svg>  Sign-up</a>
+
+            <a href ="/user-info" style="visibility: hidden;" id="userInfoPage" type="button" class="btn btn-outline-light me-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-vcard" viewBox="0 0 16 16">
+              <path d="M5 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm4-2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5ZM9 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 9 8Zm1 2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5Z"/>
+              <path d="M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H2ZM1 4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H8.96c.026-.163.04-.33.04-.5C9 10.567 7.21 9 5 9c-2.086 0-3.8 1.398-3.984 3.181A1.006 1.006 0 0 1 1 12V4Z"/>
+            </svg>  User Info</a>
+
+          </div>
+        </div>
+      </div>
+    </header>
 </head>
 
+<style>
+  body {background-color: powderblue;}
+</style> 
 <body>
+  <div style="text-align:center;">
+    <img src="https://cdn2.iconfinder.com/data/icons/travel-481/4000/Tourist_car-512.png" alt=""> 
+  </div>
 
-  <h1>Welcome Username</h1>
-  
-    <form action="/" method="POST">
-        <label for="fname">First name:</label><br>
-        <input type="text" id="fname" name="fname"><br>
-        <label for="lname">Last name:</label><br>
-        <input type="text" id="lname" name="lname"><br><br>
-        <input type="submit" value="Submit">
-    </form> 
-    {% if income_form_data %}
-        <h1>{{income_form_data.fname}}</h1><h1>{{income_form_data.lname}}</h1>
-    {% endif %}
-
-    
-  Username <input type="text" name="username"><br/>
-  <input type="button" id="logoutButton" name="logoutButton" value="Logout"><br/>
-
-</body>
-
-<script>
-  $('#logoutButton').on('click', function(){
-    console.log('Hello')
-  })
-</script>
-
-</html>
-
-<html>
-  <head>
-    <title>File Upload</title>
-  </head>
-  <body>
-    <h1>File Upload</h1>
-    <form method="POST" action="" enctype="multipart/form-data">
-      <p><input type="file" name="file"></p>
-      <p><input type="submit" value="Submit"></p>
-    </form>
-  </body>
-</html>
-
-
-<html>
-<head>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-<title>Page Title</title>
-</head>
-
-<body>
-
-<div>
-    <a href="/login" style="visibility: visible;" id="loginPageLink"> Login Page </a>
-    <a href="/login" style="visibility: visible;" id="registerPageLink"> Register page </a>
-</div>
-
-<h1 id="textHeading">My First Heading</h1>
-<p id="textParagraph">My first paragraph.</p>
-
-<input type="text" name="input" id="changeTextInput">
-
+  <div id="allPosts" style="text-align:center;">
+    <h2>Blog Posts</h2>
+  </div>   
+ 
 </body>
 
 <script type="text/javascript">
@@ -74,15 +71,74 @@
     if (token){
         $( "#loginPageLink").css( "visibility", "hidden" );
         $( "#registerPageLink").css( "visibility", "hidden" );
+        $("#createPostLink").css("visibility", "visible");
+        $("#createCommentLink").css("visibility", "visible");
+        $("#allPostsLink").css("visibility", "visible");
+        $("#logoutButton").css("visibility", "visible");
+        $("#userInfoPage").css("visibility", "visible");
     }
+    $('#logoutButton').on('click', function(){
+      localStorage.removeItem('token');
+      var url = '/'
+      $(location).attr('href', url);
+    });
 </script>
-<script type="text/javascript">
+
+<script>
+  var token = localStorage.getItem('token');
+    $.ajax({
+        url: "/api/v1/posts",
+        method: "GET",
+        headers: {"Authorization": token},
+        success: function(result) { 
+          $.each(result, function( index, value ) {
+            // $("#allPosts").append(`<img src="static/UploadFile/${value.url} "><br>`);
+            $("#allPosts").append("<br><strong><h4>" + value.title + "</strong></h4>" + value.body + "<br>");
+            $("#allPosts").append(`<a href="/post/${value.id}" class="btn btn-primary btn-sm">Post</a><br><br>`);
+
+            let image = result.file;
+            $.each(image, function(index, value){
+                console.log(value);
+                $("#userFile").append(`<img src="static/UploadFile/${value.url} "><br>`);
+            })
+          })    
+        },
+        error: function(msg) {
+          console.error(msg);
+        } 
+    })        
+          // post = result.posts
+          // $.each(post, function(index) {
+          //   let image;
+          //   console.log(post)
+          //   if (post[index]["file"] !== null){
+          //     image = post[index]["file"];
+          //     console.log(image)
+          //   }
+          //   let title = post[index]["title"];
+          //   let body = post[index]["body"];
+          //   console.log(title)
+          //   if(image){
+          //     $("#allPosts").append(`<img src="/static/UploadFile/${image}"><br>`);//value.file.url
+          //   }
+          //   $("#allPosts").append(`<br><strong><h4>${title}</strong></h4>${body}<br>`);
+            // $("#allPosts").append(`<a href="/post/${value.id}" class="btn btn-primary btn-sm">Post</a><br><br>`);
+   
+  
+        // error: function(msg) {
+        //   console.error(msg);
+        // } 
+</script>
+
+<!-- (`<img src="static/UploadFile/${value.file_url}"><br>`) -->
+
+<!-- <script type="text/javascript">
     $( "#changeTextInput" ).on('input', function() {
     console.log(this);
     var incomeText = $(this).val();
     $( "#textHeading" ).text(incomeText);
     $( "#textParagraph" ).text(incomeText);
 });
-</script>
+</script> -->
 
 </html>

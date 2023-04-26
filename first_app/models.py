@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey
-from .db import db
+from db import db
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
 
 class User(db.Model):
@@ -29,7 +30,15 @@ class User(db.Model):
 
 	def full_name(self):
 		return f'{self.first_name} {self.second_name}'
-		
+
+
+class Upload(db.Model):
+	__tablename__ = 'upload'
+	id = Column(Integer, primary_key=True)
+	url = Column(String(200))
+	author_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+	post = relationship("Post", back_populates="file", single_parent=True)
+
 
 class Post(db.Model):
 	__tablename__ = 'post'
@@ -40,14 +49,17 @@ class Post(db.Model):
 	is_deleted = Column(Boolean(), default=False)
 	created = Column(DateTime, nullable=False, default=datetime.utcnow())
 	image_id = Column(Integer, ForeignKey('upload.id'))
-	
 
-	def __init__(self, author_id=None, title=None, body=None, created=None, image_id=None):
+	comments = relationship("Comments", backref = "post")
+	file = relationship("Upload", back_populates="post", primaryjoin=Upload.id==image_id)
+
+	def __init__(self, author_id=None, title=None, body=None, is_deleted=None, created=None, image_id=None):
 		self.author_id = author_id
 		self.title = title
 		self.body = body
-		self.created = datetime.utcnow()
+		self.is_deleted = is_deleted
 		self.image_id = image_id
+		self.created = datetime.utcnow()
 
 
 	def __repr__(self):
@@ -63,28 +75,17 @@ class Comments(db.Model):
 	created = Column(DateTime, nullable=False, default=datetime.utcnow())
 	is_deleted = Column(Boolean(), default=False)
 
-	def __init__(self, author_id=None, post_id=None, text=None, created=None):
+	def __init__(self, author_id=None, post_id=None, text=None, created=None, is_deleted=None):
 		self.author_id = author_id
 		self.post_id = post_id
 		self.text = text
+		self.is_deleted = is_deleted
 		self.created = datetime.utcnow()
 
-	# def __init__(self, *args, **kwargs) -> None:
-	# 	super(Comments, self).__init__(self, *args, **kwargs)
 
 	def __repr__(self):
 		return f'Comments({self.author_id}, {self.text}, {self.created})'	
 
-	# def __repr__(self):
-	# 	return f'{self.__class__}: {self.text}", {self.created}'
 
 
-class Upload(db.Model):
-	__tablename__ = 'upload'
-	id = Column(Integer, primary_key=True)
-	# image_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-	# name = Column(String(50), nullable=False)
-	url = Column(String(200))	
-
-	def __init__(self, url):
-		self.url = url
+	

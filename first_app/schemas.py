@@ -7,13 +7,6 @@ class UserSchema(Schema):
     second_name = fields.String()
     password = fields.String()
 
-class PostSchema(Schema):
-    id = fields.Integer(dump_only=True)
-    author_id = fields.Integer(required=True)
-    title = fields.String(required=True, validate=[validate.Length(max=100)])
-    body = fields.String(required=True, validate=[validate.Length(max=100)])
-    is_deleted = fields.Boolean()
-    created = fields.DateTime()
 
 class CommentsSchema(Schema):
     id = fields.Integer(dump_only=True)
@@ -25,4 +18,19 @@ class CommentsSchema(Schema):
 
 class UploadSchema(Schema):
     id = fields.Integer(dump_only=True)    
-    url = fields.String(required=True, validate=[validate.Length(max=200)])
+    url = fields.String(required=True)
+
+class PostSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    author_id = fields.Integer(required=True)
+    title = fields.String(required=True, validate=[validate.Length(max=100)])
+    body = fields.String(required=True, validate=[validate.Length(max=100)])
+    is_deleted = fields.Boolean()
+    image_id = fields.Integer(required=True)
+    comments = fields.Nested(CommentsSchema, many=True)
+    file = fields.Nested(UploadSchema)
+    created = fields.DateTime()
+    # file_url = fields.String(data_key="file.url")
+
+
+    
