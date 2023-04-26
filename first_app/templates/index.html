@@ -85,23 +85,53 @@
 </script>
 
 <script>
-    var token = localStorage.getItem('token');
+  var token = localStorage.getItem('token');
     $.ajax({
         url: "/api/v1/posts",
         method: "GET",
         headers: {"Authorization": token},
         success: function(result) { 
           $.each(result, function( index, value ) {
-            // $("#allPosts").append(`<img src="static/UploadFile/${value.file_url}"><br>`);
+            // $("#allPosts").append(`<img src="static/UploadFile/${value.url} "><br>`);
             $("#allPosts").append("<br><strong><h4>" + value.title + "</strong></h4>" + value.body + "<br>");
             $("#allPosts").append(`<a href="/post/${value.id}" class="btn btn-primary btn-sm">Post</a><br><br>`);
+
+            let image = result.file;
+            $.each(image, function(index, value){
+                console.log(value);
+                $("#userFile").append(`<img src="static/UploadFile/${value.url} "><br>`);
+            })
           })    
         },
         error: function(msg) {
           console.error(msg);
         } 
-    })
-</script>      
+    })        
+          // post = result.posts
+          // $.each(post, function(index) {
+          //   let image;
+          //   console.log(post)
+          //   if (post[index]["file"] !== null){
+          //     image = post[index]["file"];
+          //     console.log(image)
+          //   }
+          //   let title = post[index]["title"];
+          //   let body = post[index]["body"];
+          //   console.log(title)
+          //   if(image){
+          //     $("#allPosts").append(`<img src="/static/UploadFile/${image}"><br>`);//value.file.url
+          //   }
+          //   $("#allPosts").append(`<br><strong><h4>${title}</strong></h4>${body}<br>`);
+            // $("#allPosts").append(`<a href="/post/${value.id}" class="btn btn-primary btn-sm">Post</a><br><br>`);
+   
+  
+        // error: function(msg) {
+        //   console.error(msg);
+        // } 
+</script>
+
+<!-- (`<img src="static/UploadFile/${value.file_url}"><br>`) -->
+
 <!-- <script type="text/javascript">
     $( "#changeTextInput" ).on('input', function() {
     console.log(this);

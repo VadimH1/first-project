@@ -79,8 +79,9 @@ def update_post(post_id):
 def get_user_post():
     """Список постів юзера"""
     post = Post.query.filter(Post.author_id==g.user_id).all()
-   
     post_schema = PostSchema(many=True)
+    # post_schema = PostSchema(many=True).dump(post)
+    # return {"posts": post_schema}, 200
 
     return jsonify(post_schema.dump(post))
 

@@ -14,22 +14,43 @@ import datetime
 upload_urls = Blueprint("upload", __name__)
 
 @upload_urls.route('/api/v1/upload-files', methods=['POST'])
+@login_required
+# def upload_file():
+#     uploaded_file = request.files.get('file')
+
+#     if not uploaded_file:
+#         return{"error_file_upload":"Not file"}, 400
+    
+#     filename = f"{uploaded_file.filename}-{uuid4()}"
+    
+#     path_to_file = uploaded_file.save(os.path.join(UPLOAD_FOLDER, secure_filename(filename)))
+
+#     file = Upload(url = filename)
+#     db.session.add(file)
+#     db.session.commit()
+    
+#     return {"status":"Uploaded",
+#                "id": file.id}
+
 def upload_file():
-    uploaded_file = request.files.get('file')
+    uploaded_file = request.files['file']
 
     if not uploaded_file:
         return{"error_file_upload":"Not file"}, 400
     
-    filename = f"{uploaded_file.filename}-{uuid4()}"
-    
-    path_to_file = uploaded_file.save(os.path.join(UPLOAD_FOLDER, secure_filename(filename)))
+    filename = secure_filename(uploaded_file.filename)
+    uploaded_file.save(os.path.join(UPLOAD_FOLDER, filename))
 
-    file = Upload(url = filename)
+    # print(path_to_file)
+    # print(os.path.join(UPLOAD_FOLDER, filename))
+
+    file = Upload(url=os.path.join(UPLOAD_FOLDER, filename))
     db.session.add(file)
     db.session.commit()
-    
+
     return {"status":"Uploaded",
-               "id": file.id}
+               "id": file.id}, 200
+
 
 
 @upload_urls.route('/api/v1/delete-file/<int:image_id>', methods=['DELETE'])
@@ -45,26 +66,6 @@ def delete_file(image_id):
     db.session.commit()
 
     return {"Status": "File deleted"}, 200
-
-# @login_required
-# def upload_file():
-#     uploaded_file = request.files['file']
-#     if not uploaded_file:
-#         return{"error_file_upload":"Not file"}, 400
-    
-#     filename = uploaded_file.filename
-    
-#     path_to_file = uploaded_file.save(os.path.join(UPLOAD_FOLDER,
-#                                                     secure_filename(filename)))
-#     file = Upload(url = filename)
-#     db.session.add(file)
-#     db.session.commit()
-    
-#     return {"status":"Uploaded",
-#                "id": file.id}
-
-
-
 
     # uploaded_file = request.files['file']
 

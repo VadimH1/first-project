@@ -67,7 +67,7 @@
     <div style="text-align:center;" class="content">
         <p><img src="https://cdn2.iconfinder.com/data/icons/xomo-basics/128/document-04-256.png" alt="">
         </p>
-    
+        <div id="userFile" style="text-align:center;" ></div>
         <div id="userPost" style="color:black; text-align:center;">
             <h2> POST </h2>
         </div><br>
@@ -109,6 +109,12 @@
             $.each(comments, function( index, value ) {
                 $("#postCommentsList").append(`<li><strong><a href="/update/comment/${value.id}">${value.text}</a><strong></li><br><br>`);
             });
+
+            let image = result.file;
+            $.each(image, function(key, value){
+                console.log();
+                $("#userFile").append(`<img src=${value.url}><br>`);
+            })
         }
     })
 </script>
