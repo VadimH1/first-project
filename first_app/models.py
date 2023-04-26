@@ -36,13 +36,9 @@ class Upload(db.Model):
 	__tablename__ = 'upload'
 	id = Column(Integer, primary_key=True)
 	url = Column(String(200))
-	# post_id = Column(Integer, ForeignKey('post.id'))
+	author_id = Column(Integer, ForeignKey('user.id'), nullable=False)
 	post = relationship("Post", back_populates="file", single_parent=True)
-		
 
-	def __init__(self, url=None):
-		self.url = url
-				
 
 class Post(db.Model):
 	__tablename__ = 'post'

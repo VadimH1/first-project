@@ -120,16 +120,18 @@ $("#sentPostButton").on('click', function() {
         url: '/api/v1/upload-files',
         method: 'POST',
         data: formData,
+        headers: {"Authorization": token},
         contentType: false,
         processData: false,
-        success: function() {
+        success: function(result) {
             // if (data != 0) {
             //     console.log('Successful file upload to: ' + data.id);
             // }
             // else{
             //     console.log('File upload error');
             // }
-            imageId = data.id;
+            console.log("HERE")
+            let imageId = result.id;
             $.ajax({
                 url: "/api/v1/create-post",
                 method: "POST",

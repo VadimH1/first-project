@@ -109,12 +109,8 @@
             $.each(comments, function( index, value ) {
                 $("#postCommentsList").append(`<li><strong><a href="/update/comment/${value.id}">${value.text}</a><strong></li><br><br>`);
             });
-
             let image = result.file;
-            $.each(image, function(key, value){
-                console.log();
-                $("#userFile").append(`<img src=${value.url}><br>`);
-            })
+            $("#userFile").append(`<img src=/${image.url}><br>`);
         }
     })
 </script>

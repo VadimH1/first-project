@@ -2,11 +2,12 @@ import os
 import json 
 import jwt
 from flask import Flask, Blueprint, request, render_template, session, jsonify, g
+from flask import send_from_directory
 from models import Upload
 from schemas import UploadSchema
 from db import db
 from werkzeug.utils import secure_filename
-from config import UPLOAD_FOLDER
+from config import UPLOAD_FOLDER, BLOG_IMAGE_FOLDER, MEDIA_FOLDER
 from uuid import uuid4
 from .user_api import login_required
 import datetime
@@ -36,20 +37,24 @@ def upload_file():
     uploaded_file = request.files['file']
 
     if not uploaded_file:
-        return{"error_file_upload":"Not file"}, 400
-    
+        return {"error_file_upload": "Not file"}, 400
     filename = secure_filename(uploaded_file.filename)
     uploaded_file.save(os.path.join(UPLOAD_FOLDER, filename))
 
-    # print(path_to_file)
-    # print(os.path.join(UPLOAD_FOLDER, filename))
+    url = f"{BLOG_IMAGE_FOLDER}/{filename}"
+    author_id = g.user_id
 
-    file = Upload(url=os.path.join(UPLOAD_FOLDER, filename))
+    file = Upload(
+        url=url,
+        author_id=author_id
+    )
+
     db.session.add(file)
     db.session.commit()
-
-    return {"status":"Uploaded",
-               "id": file.id}, 200
+    return {
+        "status":"Uploaded",
+        "id": file.id
+    }, 200
 
 
 
@@ -83,4 +88,6 @@ def delete_file(image_id):
     # return jsonify(upload_schema.dump(upload_file))
 
 
-
+@upload_urls.route('/media/<path:path>')
+def download_image(path):
+    return send_from_directory(MEDIA_FOLDER, path)
