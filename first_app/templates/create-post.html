@@ -6,55 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link href="/static/create-post.css" rel="stylesheet" type="text/css">
 
     <title>Create Post</title>
 </head>
-<style>
-    * {
-    box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
-    }
 
-    body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    }
-
-    /* Style the top navigation bar */
-    .topnav {
-    overflow: hidden;
-    background-color: #333;
-    }
-
-    /* Style the topnav links */
-    .topnav a {
-    float: left;
-    display: block;
-    color: #f2f2f2;
-    text-align: center;
-    padding: 14px 16px;
-    text-decoration: none;
-    }
-
-    /* Change color on hover */
-    .topnav a:hover {
-    background-color: powderblue;
-    color: black;
-    }
-
-    /* Style the content */
-    .content {
-    background-color: powderblue;
-    padding: 20px;
-    height: 1000px; 
-    }
-
-    /* Style the footer */
-    .footer {
-    background-color: powderblue;
-    padding: 10px;
-    }
-</style>
 <body>
     <div class="topnav">
         <a href="/"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-fill" viewBox="0 0 16 16">
@@ -65,21 +21,16 @@
 
     <div style="text-align:center;" class="content">
         <p>
-            <img src="https://cdn1.iconfinder.com/data/icons/space-flat-galaxy-radio/512/starship-256.png">
+            <img src="https://cdn4.iconfinder.com/data/icons/placeholder-6/64/post_office-mail-maps-location-placeholder-pin-256.png">
         </p>
         <h1 id="textPosts" style="text-align:center;">Create Post</h1>
         <input type="text" name="titlePost" id="titlePost" placeholder="Title"><br><br>
         <textarea type="text" name="bodyPost" id="bodyPost" cols="50" rows="5" placeholder="Text"></textarea><br><br>
 
-        <!-- <input type="file" id="file" name="file"><br><br> -->
         <form id="images" enctype="multipart/form-data">
             <input type="file" id="file" name="file">
         </form><br>
         <input type="button" class="btn btn-outline-success" name="sentPostButton" id="sentPostButton" value="Sent">
-        <!-- <form id="images" enctype="multipart/form-data">
-            <input type="file" id="file" name="file">
-            <input id="images-button" type="button" value="Upload">
-        </form> -->
 
         <p style="visibility: hidden; color: red" id="errorRequiredFields">Required fields is empty</p>
     </div>    
@@ -96,7 +47,7 @@ $("#sentPostButton").on('click', function() {
     if (titlePost === "" || bodyPost === "") {
         $('#errorRequiredFields').css( "visibility", "visible" );
         return
-    }
+    };
     if (!file) {
         $.ajax({
             url: "/api/v1/create-post",
@@ -109,12 +60,12 @@ $("#sentPostButton").on('click', function() {
                 body: bodyPost,
                 image_id: null
             }),
-            success: function(data) {
+            success: function(result) {
                 alert('Post created without file');
                 var url = "/";
                 $(location).attr('href', url);
             }
-        })
+        });
     };
     $.ajax({
         url: '/api/v1/upload-files',
@@ -124,12 +75,6 @@ $("#sentPostButton").on('click', function() {
         contentType: false,
         processData: false,
         success: function(result) {
-            // if (data != 0) {
-            //     console.log('Successful file upload to: ' + data.id);
-            // }
-            // else{
-            //     console.log('File upload error');
-            // }
             console.log("HERE")
             let imageId = result.id;
             $.ajax({
@@ -142,62 +87,20 @@ $("#sentPostButton").on('click', function() {
                     title: titlePost,
                     body: bodyPost,
                     image_id: imageId
-                })
+                }),
+                success: function(result) {
+                    alert('Post created with file');
+                    var url = "/";
+                    $(location).attr('href', url);
+                }
             })
         }
-    })        
-})        
+    });        
+});        
 </script>
+</html>
 
 
 
-<script type="text/javascript">
-    // $("#sentPostButton").on('click', function() {
-    //     var titlePost = $("#titlePost").val();
-    //     var bodyPost = $("#bodyPost").val();
-    //     var token = localStorage.getItem('token');
-    //     if (titlePost === "" || bodyPost === "") {
-    //          $('#errorRequiredFields').css( "visibility", "visible" );
-    //          return
-    //     }
-    //     $.ajax({
-    //         url: "/api/v1/create-post",
-    //         method: "POST",
-    //         headers: {"Authorization": token},
-    //         dataType: "json",
-    //         contentType: "application/json; charset=utf-8",
-    //         data: JSON.stringify({
-    //             title: titlePost,
-    //             body: bodyPost
-    //         })
-    //     })
-    // })
-</script>
-<!-- <script type="text/javascript">
-    $(document).ready( function(e) {
-        $("#sentPostButton").on('click', function(e) {
-            // e.preventDefault();
-            var token = localStorage.getItem('token');
-            var formData = new FormData();
-            formData.append('file', files[0]);
-            $.ajax ({
-                url: '/api/v1/upload-files',
-                method: "POST",
-                data: formData,
-                cache: false,
-                processData: false,
-                contentType: false,
-                success: function(data) {
-                    console.log('success');
-                    console.log(data);
-                },
-                error: function(data) {
-                    console.log('error');
-                    console.log(data);
-                }
-            }) 
-        })
-    })
-</script> -->
 
 

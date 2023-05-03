@@ -16,7 +16,6 @@ comment_urls = Blueprint("comment", __name__)
 @comment_urls.route('/api/v1/create-comments/<int:post_id>', methods=['POST'])
 @login_required
 def create_comment(post_id):
-    """Додавання нового коментаря"""
     author_id = g.user_id
     post_id = post_id
     data = request.json
@@ -40,7 +39,6 @@ def create_comment(post_id):
 @comment_urls.route('/api/v1/update-comments/<int:comment_id>', methods=['PUT']) 
 @login_required   
 def update_comment(comment_id):
-    """Редагування(оновлення) коментарів"""
     data = request.json
     text = data['text']
     created = datetime.datetime.utcnow()
@@ -66,12 +64,10 @@ def update_comment(comment_id):
 @comment_urls.route('/api/v1/delete-comments/<int:comment_id>', methods=['DELETE'])
 @login_required
 def delete_comments(comment_id):
-    """Видалення коментарів"""
     author_id = g.user_id
     comment = Comments.query.filter(Comments.post_id==comment_id).all()
 
     if comment or not comment:
-        # return {"Error": "Comment not found"}, 400 
         for comments in comment:
             db.session.delete(comments)
             db.session.commit()
@@ -82,7 +78,6 @@ def delete_comments(comment_id):
 @comment_urls.route('/api/v1/delete-comment/<int:comment_id>', methods=['DELETE'])
 @login_required
 def delete_one_comment(comment_id):
-    """Видалення одного коментаря"""
     author_id = g.user_id
     comment = Comments.query.filter(Comments.id==comment_id).first()
 
@@ -98,8 +93,6 @@ def delete_one_comment(comment_id):
 @comment_urls.route('/api/v1/comment/<int:comment_id>', methods=['GET'])
 @login_required
 def user_comment(comment_id):
-    """Виводимо коментар користувача"""
-
     author_id = g.user_id
     comment = Comments.query.filter(Comments.id == comment_id).first()
     comment_schema = CommentsSchema()

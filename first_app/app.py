@@ -1,6 +1,5 @@
 import os
 from flask import Flask
-# from .api_app import hello_urls, post_urls, comment_urls, upload_urls
 from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from views.index import index_urls
@@ -17,9 +16,10 @@ from api_app.user_api import hello_urls
 from api_app.upload_api import upload_urls
 from api_app.post_api import post_urls
 from api_app.comment_api import comment_urls
+from config import BLOG_IMAGE_FOLDER
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-UPLOAD_FOLDER = os.path.join(basedir,'static/UploadFile')
+UPLOAD_FOLDER = os.path.join(basedir, BLOG_IMAGE_FOLDER)
 
 
 def create_app(test_config=None):

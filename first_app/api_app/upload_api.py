@@ -7,7 +7,7 @@ from models import Upload
 from schemas import UploadSchema
 from db import db
 from werkzeug.utils import secure_filename
-from config import UPLOAD_FOLDER, BLOG_IMAGE_FOLDER, MEDIA_FOLDER
+from config import UPLOAD_FOLDER, BLOG_IMAGE_FOLDER, MEDIA_FOLDER, UPLOAD_EXTENSIONS
 from uuid import uuid4
 from .user_api import login_required
 import datetime
@@ -16,29 +16,17 @@ upload_urls = Blueprint("upload", __name__)
 
 @upload_urls.route('/api/v1/upload-files', methods=['POST'])
 @login_required
-# def upload_file():
-#     uploaded_file = request.files.get('file')
-
-#     if not uploaded_file:
-#         return{"error_file_upload":"Not file"}, 400
-    
-#     filename = f"{uploaded_file.filename}-{uuid4()}"
-    
-#     path_to_file = uploaded_file.save(os.path.join(UPLOAD_FOLDER, secure_filename(filename)))
-
-#     file = Upload(url = filename)
-#     db.session.add(file)
-#     db.session.commit()
-    
-#     return {"status":"Uploaded",
-#                "id": file.id}
-
 def upload_file():
     uploaded_file = request.files['file']
 
     if not uploaded_file:
         return {"error_file_upload": "Not file"}, 400
-    filename = secure_filename(uploaded_file.filename)
+    filename = secure_filename(f"{uploaded_file.filename}-{uuid4()}")
+
+    file_ext = os.path.splitext(filename)[1]
+    if file_ext not in UPLOAD_EXTENSIONS:
+        return {"Error File_Extention": "Invalid file extension"}
+
     uploaded_file.save(os.path.join(UPLOAD_FOLDER, filename))
 
     url = f"{BLOG_IMAGE_FOLDER}/{filename}"
@@ -71,21 +59,6 @@ def delete_file(image_id):
     db.session.commit()
 
     return {"Status": "File deleted"}, 200
-
-    # uploaded_file = request.files['file']
-
-    # # if uploaded_files.filename != '':
-    # #     uploaded_files.save(secure_filename(uploaded_files.filename))
-    # filename = f"{uploaded_file.filename}-{uuid4}"
-    # path_to_file = uploaded_file.save(os.path.join(UPLOAD_FOLDER, secure_filename(filename)))   
-
-    # upload_file = Upload(url = path_to_file)#uploaded_files.filename)
-
-    # db.session.add(upload_file)
-    # db.session.commit()
-
-    # upload_schema = UploadSchema()
-    # return jsonify(upload_schema.dump(upload_file))
 
 
 @upload_urls.route('/media/<path:path>')

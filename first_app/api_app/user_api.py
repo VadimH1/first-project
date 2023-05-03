@@ -89,8 +89,6 @@ def login_api():
 @hello_urls.route("/api/v1/user-info", methods=['GET'])
 @login_required
 def user_info_api():
-    # author_id = g.user_id
-
     user = User.query.filter(User.id == g.user_id).first()
     
     if not user:

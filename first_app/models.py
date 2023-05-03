@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from db import db
 from datetime import datetime
 from sqlalchemy.orm import relationship
@@ -38,6 +38,11 @@ class Upload(db.Model):
 	url = Column(String(200))
 	author_id = Column(Integer, ForeignKey('user.id'), nullable=False)
 	post = relationship("Post", back_populates="file", single_parent=True)
+
+	def __init__(self, author_id=None, url=url):
+		self.author_id = author_id
+		self.url = url
+		
 
 
 class Post(db.Model):
