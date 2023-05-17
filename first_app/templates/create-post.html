@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link href="/static/create-post.css" rel="stylesheet" type="text/css">
+
+    <title>Create Post</title>
+</head>
+
+<body>
+    <div class="topnav">
+        <a href="/"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-fill" viewBox="0 0 16 16">
+            <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5Z"/>
+            <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293l6-6Z"/>
+          </svg>  Home</a>
+    </div>  
+
+    <div style="text-align:center;" class="content">
+        <p>
+            <img src="https://cdn4.iconfinder.com/data/icons/placeholder-6/64/post_office-mail-maps-location-placeholder-pin-256.png">
+        </p>
+        <h1 id="textPosts" style="text-align:center;">Create Post</h1>
+        <input type="text" name="titlePost" id="titlePost" placeholder="Title"><br><br>
+        <textarea type="text" name="bodyPost" id="bodyPost" cols="50" rows="5" placeholder="Text"></textarea><br><br>
+
+        <form id="images" enctype="multipart/form-data">
+            <input type="file" id="file" name="file">
+        </form><br>
+        <input type="button" class="btn btn-outline-success" name="sentPostButton" id="sentPostButton" value="Sent">
+
+        <p style="visibility: hidden; color: red" id="errorRequiredFields">Required fields is empty</p>
+    </div>    
+</body>
+<script type="text/javascript">
+    var imageId;
+$("#sentPostButton").on('click', function() {
+    var titlePost = $("#titlePost").val();
+    var bodyPost = $("#bodyPost").val();
+    var formData = new FormData();
+    var file = $('#file')[0].files[0];
+    formData.append('file', file);
+    var token = localStorage.getItem('token');
+    if (titlePost === "" || bodyPost === "") {
+        $('#errorRequiredFields').css( "visibility", "visible" );
+        return
+    };
+    if (!file) {
+        $.ajax({
+            url: "/api/v1/create-post",
+            method: "POST",
+            headers: {"Authorization": token},
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                title: titlePost,
+                body: bodyPost,
+                image_id: null
+            }),
+            success: function(result) {
+                alert('Post created without file');
+                var url = "/";
+                $(location).attr('href', url);
+            }
+        });
+    };
+    $.ajax({
+        url: '/api/v1/upload-files',
+        method: 'POST',
+        data: formData,
+        headers: {"Authorization": token},
+        contentType: false,
+        processData: false,
+        success: function(result) {
+            console.log("HERE")
+            let imageId = result.id;
+            $.ajax({
+                url: "/api/v1/create-post",
+                method: "POST",
+                headers: {"Authorization": token},
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    title: titlePost,
+                    body: bodyPost,
+                    image_id: imageId
+                }),
+                success: function(result) {
+                    alert('Post created with file');
+                    var url = "/";
+                    $(location).attr('href', url);
+                }
+            })
+        }
+    });        
+});        
+</script>
+</html>
+
+
+
+
+

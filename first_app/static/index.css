@@ -1,0 +1,15 @@
+/* body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    } */
+/* body {background-color: powderblue;} */
+a:link {
+    color: black;
+    background-color: transparent;
+    text-decoration: none;
+    }
+.content {
+    background-color: powderblue;
+    padding: 40px;
+    height: 5000px; 
+    }

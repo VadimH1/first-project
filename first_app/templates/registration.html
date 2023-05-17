@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Sign-Up</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link href="/static/registration.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+
+    <div class="topnav">
+        <a href="/"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-fill" viewBox="0 0 16 16">
+            <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5Z"/>
+            <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293l6-6Z"/>
+          </svg>  Home</a>
+    </div>
+
+    <div style="text-align:center;" class="content">
+        <p>
+            <img src="https://cdn1.iconfinder.com/data/icons/office-222/91/General_Office_09-128.png">
+        </p>
+        <h2>Sign-Up</h2>
+        <input type="text" name="phoneNumber" id="phoneNumber" placeholder="Phone number"><br><br>
+        <input type="text" name="firstName" id="firstName" placeholder="First name"><br><br>
+        <input type="text" name="secondName" id="secondName" placeholder="Second name"><br><br>
+        <input type="password" name="password" id="password" placeholder="Password"><br><br>
+        
+        <div class="d-grid gap-2 col-6 mx-auto">
+            <button name="registerButton" id="registerButton" value="Registration Button" class="btn btn-warning" type="button">Sign-Up</button>
+        </div>
+
+        <p style="visibility: hidden; color: red;" id="errorRequiredFields">Required fields is empty</p>
+        <p style="visibility: hidden;" id="errorRequiredFields">Required fields is empty</p>
+        <p style="visibility: hidden; color: red;" id="invalidName">Invalid name</p>
+    </div>
+
+    <div class="footer">
+        <p>footer</p>
+    </div>
+
+</body>
+<script>
+$(document).ready(function(){   
+    $( "#registerButton" ).on('click', function() {
+        var phoneNumber = $( '#phoneNumber' ).val(); 
+        var firstName = $( '#firstName' ).val();
+        var secondName = $( '#secondName' ).val();
+        var password = $( '#password' ).val();
+        if (phoneNumber === "" || firstName === ""|| secondName === "" || password === "") {
+             $('#errorRequiredFields').css( "visibility", "visible" );
+             return
+        }    
+        $.ajax({
+            url: "/api/v1/register-user",
+            method: "POST",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                phone_number: phoneNumber,
+                first_name: firstName,
+                second_name: secondName,
+                password: password
+            }),
+            success: function(data) {
+                var url = "/login";
+                $(location).attr('href', url)
+            },
+            error: function(request, status, error) {
+                $('#invalidName').css( "visibility", "visible" );
+            }
+        }) 
+    })
+})     
+</script> 
+</html>
+
+
+

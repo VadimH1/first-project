@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link href="/static/user-info.css" rel="stylesheet" type="text/css">
+
+    <title>User Info</title>
+</head>
+
+<body>
+    <div class="topnav">
+        <a href="/"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-fill" viewBox="0 0 16 16">
+            <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5Z"/>
+            <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293l6-6Z"/>
+          </svg>  Home</a>
+    </div>  
+
+    <div style="text-align:center;" class="content">
+        <p>
+            <img src="https://cdn0.iconfinder.com/data/icons/ie_Bright/128/information.png">
+        </p>
+        <h1 id="userInfo" style="text-align:center;">User Info</h1>
+        <a href="/change-password" type="button" class="btn btn-danger" id="updateInfoButton">Change User Password</a>
+    </div>
+
+</body>
+<script>
+    $(document).ready(function() {
+        var token = localStorage.getItem('token');
+        // var url = window.location.pathname;
+        // var userId = url.split("/").pop();
+        $.ajax({
+            url: `/api/v1/user-info`,
+            method: "GET",
+            headers: {"Authorization": token},
+            success: function(result) {
+                $("#userInfo").append("<li><strong>First Name: </strong> " + result.first_name + "</li>");
+                $("#userInfo").append("<li><strong>Second Name: </strong> " + result.second_name + "</li>");
+                $("#userInfo").append("<li><strong>Phone Number : </strong> " + result.phone_number + "</li>");
+                $("#userInfo").append('<a href="/edit-user-info" type="button" class="btn btn-warning" id="updateInfoButton">Edit User Info</a>');
+
+            }
+        });
+    });    
+</script>        
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Post</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link href="/static/post.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <div class="topnav"> 
+        <a href="/"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-fill" viewBox="0 0 16 16">
+            <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5Z"/>
+            <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293l6-6Z"/>
+          </svg> Home</a>
+    </div>
+
+    <div style="text-align:center;" class="content">
+        <p><img src="https://cdn2.iconfinder.com/data/icons/xomo-basics/128/document-04-256.png">
+        </p>
+        <h2> POST </h2><br>
+        <div id="userFile" style="text-align:center;" ></div>
+        <div id="userPost" style="color:black; text-align:center;"></div><br>
+        <input type="button" name="deletePost" id="deletePost" value="Delete" class="btn btn-danger"><br><br>
+
+        <div id="postCommentsList" class="shadow p-3 mb-5 bg-body rounded" style="color:green; text-align:center;">
+            <h2> Comments list :</h2>
+
+        </div> 
+        <p id="commentPost" style="color:blueviolet; text-align:center;">
+            <ol><h5>Comment for post</h5></ol>
+        </p>    
+        Text: <textarea type="text" name="textComment" id="textComment" cols="50" rows="5" placeholder="comment text"></textarea><br><br>
+        <input type="button" name="submitComment" id="submitComment" value="Submit Comment" class="btn btn-success"><br><br>  
+    </div>
+
+    <div class="footer" style="text-align:center;">
+        
+    </div>
+
+</body>
+<script>
+$(document).ready(function(){ 
+    var token = localStorage.getItem('token');
+    var url = window.location.pathname;
+    var userPostId = url.split("/").pop();
+    $.ajax({
+        url: `/api/v1/post/${userPostId}`,
+        method: "GET",
+        headers: {"Authorization": token},
+        success: function(result) { 
+            $("#userPost").append("<li><strong>Id:</strong> " + result.id + "</li>");
+            $("#userPost").append("<li><strong>" + result.title + "</strong></li>");
+            $("#userPost").append("<li>" + result.body + "</li>");
+            $("#userPost").append("<li><strong>Created:</strong> " + result.created + "</li><br>");
+            $("#userPost").append(`<a href="/update/post/${userPostId}" type="button" class="btn btn-warning" id="updatePostButton">Update Post</a>`);
+            
+            let comments = result.comments;
+            $.each(comments, function( index, value ) {
+                $("#postCommentsList").append(`<li><strong><a href="/update/comment/${value.id}">${value.text}</a><strong></li><br><br>`);
+            });
+            let image = result.file;
+            $("#userFile").append(`<img src=/${image.url} width='1200' height='800'><br>`);
+        }
+    })
+});       
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){   
+    $("#submitComment").on('click',function() {
+        var token = localStorage.getItem('token');
+        var textComment = $("#textComment").val();
+        var url = window.location.pathname;
+        var userPostId = url.split("/").pop();
+
+        if(textComment === ""){
+            $("#errorRequiredFields").css("visibility", "visible");
+            return
+        }
+        $.ajax({
+            url: `/api/v1/create-comments/${userPostId}`,
+            method: "POST",
+            headers: {"Authorization": token},
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                text: textComment
+            }),
+            success: function(data){
+                window.location.reload();
+            }
+        })
+    })
+})     
+</script>
+<script>
+    $(document).ready(function() {
+        $("#deletePost").on('click', function() {
+            var token = localStorage.getItem('token');
+            var url = window.location.pathname;
+            var userPostId = url.split("/").pop();
+            $.ajax({
+                url: `/api/v1/delete-comments/${userPostId}`,
+                method: "DELETE",
+                headers: {"Authorization": token},
+                success: function(data) {    
+                    $.ajax({
+                        url: `/api/v1/delete-post/${userPostId}`,
+                        method: "DELETE",
+                        headers: {"Authorization": token},
+                        success: function(data) {
+                            alert('Post successfully deleted');
+                            // window.location.reload();
+                            var url = "/";
+                            $(location).attr('href', url);
+                        }
+                    })          
+                }
+            })
+                
+        })
+    })
+                    
+</script>
+</html>
